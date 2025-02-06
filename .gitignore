@@ -1,0 +1,9 @@
+# Logs
+logs
+*.log
+
+dist
+out
+node_modules
+
+.env
