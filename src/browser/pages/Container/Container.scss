@@ -1,0 +1,111 @@
+@mixin containerRoot {
+  @at-root {
+    body {
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+@mixin containerHead {
+  .container-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 15px;
+    background: #3d3d3d;
+
+    .head-operations {
+      display: flex;
+      gap: 2px;
+
+      .operations-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        transition: .2s;
+
+        &:hover {
+          background-color: rgba(white, .1);
+        }
+
+        &:active {
+          background-color: rgba(white, .3);
+        }
+
+        &.disabled {
+          pointer-events: none;
+
+          .icon {
+            color: #6c6c6c;
+          }
+        }
+
+        .icon {
+          color: #c6c6c6;
+          font-size: 20px;
+          font-weight: 300;
+        }
+      }
+    }
+
+    .head-search {
+      display: flex;
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 50px;
+      background: #282828;
+      border: 2px solid transparent;
+
+      &:focus-within {
+        border: 2px solid #6aa4ff;
+      }
+
+      &.failed {
+        border: 2px solid #dc362e;
+      }
+
+      .search-input {
+        flex: 1;
+        color: #c6c6c6;
+        font-size: 14px;
+        font-weight: 300;
+        border: none;
+        outline: none;
+        background: transparent;
+
+        &::selection {
+          color: #d9dadc;
+          background-color: #3e638a;
+        }
+      }
+    }
+  }
+}
+
+@mixin containerBody {
+  .container-body {
+    flex: 1;
+
+    .body-webview {
+      height: 100%;
+    }
+  }
+}
+
+.components-container-render {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  @include containerRoot;
+  @include containerHead;
+  @include containerBody;
+}

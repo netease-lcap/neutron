@@ -3,6 +3,7 @@ const {
   app,
   ipcMain,
   BrowserWindow,
+  globalShortcut,
 } = require('electron');
 
 const Worker = require('./node-worker.js');
@@ -31,17 +32,23 @@ const createURL = (source) => {
 
 const createWindow = () => {
   const webPreferences = {
+    webviewTag: true,
     devTools: true,
     preload,
   };
 
-  const window = new BrowserWindow({
-    width: 800,
-    height: 600,
-    webPreferences,
-  });
+  const window = new BrowserWindow({ webPreferences });
 
-  window.loadFile('src/browser/index.html');
+  window.maximize();
+
+  // window.loadURL('https://csforkf.lcap.codewave-test.163yun.com');
+
+  if (process.env.NODE_ENV === 'development') {
+    window.loadURL('http://localhost:1405');
+  } else {
+    window.loadFile('dist/index.html');
+  }
+
   // 大应用
   // window.loadURL('https://csforkf.lcap.codewave-test.163yun.com/designer/app?appId=73073003-a5ca-4170-ab41-1d9a3646b466&branch=feature-lxs-electron');
   // 小应用
@@ -51,8 +58,6 @@ const createWindow = () => {
 (() => {
   app.disableHardwareAcceleration();
 
-  app.commandLine.appendSwitch('js-flags', '--max-old-space-size=16384');
-
   app.on('window-all-closed', () => {
     if (process.platform === 'darwin') {
       return;
@@ -60,15 +65,35 @@ const createWindow = () => {
 
     app.quit();
   });
+
+  app.on('web-contents-created', (event, webContents) => {
+    webContents.on('will-attach-webview', (event, webPreferences) => {
+      webPreferences.preload = webPreferences.preload || preload;
+    });
+
+    webContents.setWindowOpenHandler((event) => {
+      // window.webContents.executeJavaScript(
+      //   `window.location.href = '${event.url}'`,
+      // );
+      webContents.loadURL(event.url);
+      return { action: 'deny' };
+    });
+  });
 })();
 
 (async () => {
   await app.whenReady();
 
-  ipcMain.handle('test', (event, ...args) => {
-    console.log(...args);
-    return args;
+  globalShortcut.register('CommandOrControl+R', () => {
+    const windows = BrowserWindow.getAllWindows();
+    const code = `document.querySelector('webview')?.reload?.()`;
+
+    windows.forEach(
+      (item) => item.webContents?.executeJavaScript(code),
+    );
   });
+
+  ipcMain.handle('fetch', (event, ...args) => fetch(...args));
 
   ipcMain.handle('NodeWorker', (event, beacon, action, ...args) => {
     const { sender } = event;

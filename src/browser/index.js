@@ -1,22 +1,9 @@
-const code = `
-  console.log(222, typeof require);
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-  self.onmessage = (event) => {
-    postMessage('Worker: '+ event.data);
-  };
-`;
+import Container from './pages/Container';
 
-const options = { type: 'application/javascript' };
-const blob = new Blob([code], options);
+const element = document.getElementById('app');
+const root = createRoot(element);
 
-// const url = URL.createObjectURL(blob);
-// const worker = new Worker(url, { name: 'test' });
-
-(async () => {
-  const worker = electron.createWorker(await blob.arrayBuffer(), { name: 'test' });
-
-  const listener = (event) => console.log(event.data);
-  worker.addEventListener('message', listener);
-
-  window.testWorker = worker;
-})();
+root.render(<Container />);
