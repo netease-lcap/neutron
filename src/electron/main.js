@@ -46,7 +46,10 @@ const createWindow = () => {
     preload,
   };
 
-  const window = new BrowserWindow({ webPreferences });
+  const window = new BrowserWindow({
+    autoHideMenuBar: true,
+    webPreferences
+  });
 
   window.maximize();
 
