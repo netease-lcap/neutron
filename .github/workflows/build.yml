@@ -3,7 +3,7 @@ name: build
 on: push
 
 jobs:
-  release:
+  build-for-normal:
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -26,4 +26,29 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build@${{ matrix.os }}
+          path: out
+
+  build-for-macos-intel:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest]
+
+    steps:
+      - name: Checkout from neutron
+        uses: actions/checkout@v4
+
+      - name: Setup Node 20.10.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.10.0
+
+      - name: Make Neutron App
+        run: npm install && npm run make-intel
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: build@${{ matrix.os }}@intel
           path: out
