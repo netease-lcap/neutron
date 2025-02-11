@@ -20,7 +20,7 @@ jobs:
           node-version: 20.10.0
 
       - name: Make Neutron App
-        run: npm run make
+        run: npm install && npm run make
 
       - name: Upload
         uses: actions/upload-artifact@v4
