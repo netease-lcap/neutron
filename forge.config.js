@@ -16,7 +16,8 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        setupIcon: path.resolve(basePath, 'src/public/icon.ico'),
+        // windows 存在 bug，开启 utf-8 beta 自定义图标
+        // setupIcon: path.resolve(basePath, 'src/public/icon.ico'),
       },
     },
     {
