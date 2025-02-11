@@ -1,5 +1,9 @@
+const path = require('path');
+
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+
+const basePath = path.resolve(__dirname, './');
 
 module.exports = {
   packagerConfig: {
@@ -11,7 +15,9 @@ module.exports = {
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      config: {
+        setupIcon: path.resolve(basePath, 'src/public/icon.ico'),
+      },
     },
     {
       name: '@electron-forge/maker-zip',

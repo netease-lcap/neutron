@@ -1,7 +1,7 @@
 {
   "name": "neutron",
   "version": "1.0.0",
-  "authors": "",
+  "authors": "XiaoshuangLi",
   "description": "Electron for CodeWave",
   "main": "src/electron/main.js",
   "scripts": {
@@ -14,7 +14,6 @@
     "package": " NODE_ENV=production npm-run-all --sequential browser:build electron:package",
     "start": "NODE_ENV=development npm-run-all --parallel browser:start electron:start"
   },
-  "author": "XiaoshuangLi",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.26.8",
