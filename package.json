@@ -10,9 +10,9 @@
     "electron:make": "electron-forge make",
     "electron:package": "electron-forge package",
     "electron:start": "electron-forge start --inspect-electron",
-    "make": " NODE_ENV=production npm-run-all --sequential browser:build electron:make",
-    "package": " NODE_ENV=production npm-run-all --sequential browser:build electron:package",
-    "start": "NODE_ENV=development npm-run-all --parallel browser:start electron:start"
+    "make": "cross-env NODE_ENV=production npm-run-all --sequential browser:build electron:make",
+    "package": "cross-env NODE_ENV=production npm-run-all --sequential browser:build electron:package",
+    "start": "cross-env NODE_ENV=development npm-run-all --parallel browser:start electron:start"
   },
   "license": "ISC",
   "devDependencies": {
@@ -33,6 +33,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
     "babel-loader": "^9.2.1",
     "clean-webpack-plugin": "^4.0.0",
+    "cross-env": "^7.0.3",
     "css-loader": "^7.1.2",
     "cssnano": "^7.0.6",
     "electron": "^32.0.0",
