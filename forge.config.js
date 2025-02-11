@@ -4,6 +4,8 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    icon: 'src/public/icon',
+    name: 'CodeWave 智能开发平台',
   },
   rebuildConfig: {},
   makers: [
