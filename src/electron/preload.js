@@ -1,4 +1,9 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const electron = require('electron');
+const {
+  webFrame,
+  ipcRenderer,
+  contextBridge,
+} = electron;
 
 const store = new Map();
 const recorder = new Map();
@@ -53,6 +58,36 @@ const createWorker = (...args) => {
   };
 };
 
+ipcRenderer.addListener('Refresh', (event, beacon) => {
+  const webview = document.querySelector('webview');
+
+  if (webview) {
+    return;
+  }
+
+  window.location.reload();
+});
+
+ipcRenderer.addListener('OpenDevTools', (event, beacon) => {
+  const webview = document.querySelector('webview');
+
+  const code = `
+  (() => {
+    const webview = document.querySelector('webview');
+
+    if (!webview) {
+      return;
+    }
+
+    webview?.isDevToolsOpened?.()
+      ? webview?.closeDevTools?.()
+      : webview?.openDevTools?.();
+  })();
+`;
+
+  webview && webFrame.executeJavaScript(code);
+});
+
 ipcRenderer.addListener('StoreDelete', (event, beacon) => {
   const record = store.get(beacon);
 
@@ -68,10 +103,11 @@ ipcRenderer.addListener('StoreExecute', (event, beacon, ...params) => {
 });
 
 contextBridge.exposeInMainWorld('electron', {
-  createWorker, 
+  createWorker,
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,
   electron: () => process.versions.electron,
+  log: (...args) => console.log(...args),
   fetch: (...args) => ipcRenderer.invoke('fetch', ...args),
 });
 

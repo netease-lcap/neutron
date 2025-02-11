@@ -30,6 +30,15 @@ const createURL = (source) => {
   return `data:application/javascript;base64,${code}`;
 };
 
+const sendToFrame = (...args) => (window) => {
+  const { webContents: { mainFrame } = {} } = window;
+  const { framesInSubtree = [] } = mainFrame;
+
+  const forEach = (item) => item?.send?.(...args);
+
+  framesInSubtree.forEach(forEach);
+};
+
 const createWindow = () => {
   const webPreferences = {
     webviewTag: true,
@@ -86,10 +95,41 @@ const createWindow = () => {
 
   globalShortcut.register('CommandOrControl+R', () => {
     const windows = BrowserWindow.getAllWindows();
-    const code = `document.querySelector('webview')?.reload?.()`;
 
     windows.forEach(
-      (item) => item.webContents?.executeJavaScript(code),
+      sendToFrame('Refresh'),
+    );
+  });
+
+  globalShortcut.register('Command+Option+I', () => {
+    const windows = BrowserWindow.getAllWindows();
+
+    windows.forEach(
+      sendToFrame('OpenDevTools'),
+    );
+  });
+
+  globalShortcut.register('Command+Option+I', () => {
+    const windows = BrowserWindow.getAllWindows();
+
+    windows.forEach(
+      sendToFrame('OpenDevTools'),
+    );
+  });
+
+  globalShortcut.register('Control+Shift+I', () => {
+    const windows = BrowserWindow.getAllWindows();
+
+    windows.forEach(
+      sendToFrame('OpenDevTools'),
+    );
+  });
+
+  globalShortcut.register('CommandOrControl+I', () => {
+    const windows = BrowserWindow.getAllWindows();
+
+    windows.forEach(
+      (item) => item?.webContents?.toggleDevTools?.(),
     );
   });
 
