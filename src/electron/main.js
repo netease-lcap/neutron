@@ -53,19 +53,31 @@ const createWindow = () => {
 
   window.maximize();
 
-  // window.loadURL('https://csforkf.lcap.codewave-test.163yun.com');
-
   if (process.env.NODE_ENV === 'development') {
     window.loadURL('http://localhost:1405');
   } else {
     window.loadFile('dist/index.html');
   }
-
-  // 大应用
-  // window.loadURL('https://csforkf.lcap.codewave-test.163yun.com/designer/app?appId=73073003-a5ca-4170-ab41-1d9a3646b466&branch=feature-lxs-electron');
-  // 小应用
-  // window.loadURL('https://csforkf.lcap.codewave-test.163yun.com/designer/app?appId=4a0d8758-0d80-4a75-803a-a8329693c6f6&branch=feature-lxs-electron');
 };
+
+const windowShortcuts = [
+  {
+    accelerator: 'CommandOrControl+R',
+    callback: sendToFrame('Refresh'),
+  },
+  {
+    accelerator: 'Command+Option+I',
+    callback: sendToFrame('ToggleDevTools'),
+  },
+  {
+    accelerator: 'Control+Shift+I',
+    callback: sendToFrame('ToggleDevTools'),
+  },
+  {
+    accelerator: 'CommandOrControl+I',
+    callback: (window) => window?.webContents?.toggleDevTools?.(),
+  },
+];
 
 (() => {
   app.disableHardwareAcceleration();
@@ -84,9 +96,6 @@ const createWindow = () => {
     });
 
     webContents.setWindowOpenHandler((event) => {
-      // window.webContents.executeJavaScript(
-      //   `window.location.href = '${event.url}'`,
-      // );
       webContents.loadURL(event.url);
       return { action: 'deny' };
     });
@@ -96,44 +105,22 @@ const createWindow = () => {
 (async () => {
   await app.whenReady();
 
-  globalShortcut.register('CommandOrControl+R', () => {
-    const windows = BrowserWindow.getAllWindows();
+  app.on('browser-window-focus', (event, window) => {
+    windowShortcuts.forEach((item = {}) => {
+      const { accelerator, callback } = item;
 
-    windows.forEach(
-      sendToFrame('Refresh'),
-    );
+      const listener = () => callback(window);
+
+      globalShortcut.register(accelerator, listener);
+    });
   });
 
-  globalShortcut.register('Command+Option+I', () => {
-    const windows = BrowserWindow.getAllWindows();
+  app.on('browser-window-blur', (event, window) => {
+    windowShortcuts.forEach((item = {}) => {
+      const { accelerator } = item;
 
-    windows.forEach(
-      sendToFrame('OpenDevTools'),
-    );
-  });
-
-  globalShortcut.register('Command+Option+I', () => {
-    const windows = BrowserWindow.getAllWindows();
-
-    windows.forEach(
-      sendToFrame('OpenDevTools'),
-    );
-  });
-
-  globalShortcut.register('Control+Shift+I', () => {
-    const windows = BrowserWindow.getAllWindows();
-
-    windows.forEach(
-      sendToFrame('OpenDevTools'),
-    );
-  });
-
-  globalShortcut.register('CommandOrControl+I', () => {
-    const windows = BrowserWindow.getAllWindows();
-
-    windows.forEach(
-      (item) => item?.webContents?.toggleDevTools?.(),
-    );
+      globalShortcut.unregister(accelerator);
+    });
   });
 
   ipcMain.handle('fetch', (event, ...args) => fetch(...args));

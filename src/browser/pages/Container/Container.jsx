@@ -115,6 +115,7 @@ const Container = React.forwardRef((props = {}, ref) => {
           <input
             className="search-input"
             type="text"
+            spellCheck={false}
             onFocus={onFocusSrc}
             onKeyDown={onKeyDownSrc}
             _name="src"
@@ -145,6 +146,23 @@ const Container = React.forwardRef((props = {}, ref) => {
 
     document.title = title;
   }, [title]);
+
+  useEffect(() => {
+    const { current } = webviewRef;
+
+    if (!current) {
+      return;
+    }
+
+    const listener = () => {
+      const src = current.getURL();
+
+      setData((prev = {}) => ({ ...prev, src }));
+    };
+
+    document.addEventListener('refresh-webview', listener);
+    return () => document.removeEventListener('refresh-webview', listener);
+  }, [webviewRef]);
 
   useLoopWhenWebViewReady(() => {
     const { current } = webviewRef;
