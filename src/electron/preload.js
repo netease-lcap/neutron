@@ -9,8 +9,10 @@ const store = new Map();
 const recorder = new Map();
 
 const createBeacon = (() => {
-  let beacon = 0;
-  return () => beacon++;
+  const prefix = Math.random();
+  let suffix = 0;
+
+  return () => `${prefix}/${suffix++}`;
 })();
 
 const fromFunction = (arg) => {
@@ -23,10 +25,11 @@ const fromFunction = (arg) => {
 
   if (functional) {
     const beacon = createBeacon();
+    const result = { type, beacon };
 
     store.set(beacon, arg);
-    recorder.set(beacon, arg);
-    return { type, beacon };
+    recorder.set(arg, result);
+    return result;
   }
 
   return arg;
@@ -46,17 +49,31 @@ const createWorker = (...args) => {
   const beacon = createBeacon();
   const invoke = ipvWorkerInvoke(beacon);
 
+  store.set(beacon, true);
   invoke('create')(...args);
 
   return {
-    onerror: invoke('onerror'),
-    onmessage: invoke('onmessage'),
     terminate: invoke('terminate'),
     postMessage: invoke('postMessage'),
     addEventListener: invoke('addEventListener'),
     removeEventListener: invoke('removeEventListener'),
   };
 };
+
+const beforeunload = (() => {
+  webFrame.executeJavaScript(`
+    window.addEventListener('beforeunload', () => {
+      window.electron?.beforeunload?.();
+    }); 
+  `);
+
+  return (...args) => {
+    const beacons = Array.from(store.keys());
+    const context = { beacons };
+
+    ipcRenderer.invoke('beforeunload', context);
+  };
+})();
 
 ipcRenderer.addListener('Refresh', (event, beacon) => {
   const webview = document.querySelector('webview');
@@ -107,6 +124,7 @@ ipcRenderer.addListener('StoreExecute', (event, beacon, ...params) => {
 
 contextBridge.exposeInMainWorld('electron', {
   createWorker,
+  beforeunload,
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,
   electron: () => process.versions.electron,

@@ -6,38 +6,42 @@ const {
   globalShortcut,
 } = require('electron');
 
+const {
+  isFunction,
+  createURL,
+  sendToFrame,
+  sendToAllWindows,
+} = require('./tools.js');
+
 const Worker = require('./node-worker.js');
 
 const basePath = path.resolve(__dirname, './');
 const preload = path.resolve(basePath, 'preload.js');
 
 const store = new Map();
+const registry = new FinalizationRegistry((beacon) => {
+  store.delete(beacon);
+  sendToAllWindows('StoreDelete', beacon);
+});
 
-const isFunction = (arg) => {
-  const type = arg?.type;
-  const beacon = arg?.beacon;
-
-  return beacon !== undefined && type === 'function';
-};
-
-const createURL = (source) => {
-  if (typeof source === 'string') {
-    return source;
-  }
-
-  const code = Buffer.from(source).toString('base64');
-
-  return `data:application/javascript;base64,${code}`;
-};
-
-const sendToFrame = (...args) => (window) => {
-  const { webContents: { mainFrame } = {} } = window;
-  const { framesInSubtree = [] } = mainFrame;
-
-  const forEach = (item) => item?.send?.(...args);
-
-  framesInSubtree.forEach(forEach);
-};
+const windowShortcuts = [
+  {
+    accelerator: 'CommandOrControl+R',
+    callback: sendToFrame('Refresh'),
+  },
+  {
+    accelerator: 'Command+Option+I',
+    callback: sendToFrame('ToggleDevTools'),
+  },
+  {
+    accelerator: 'Control+Shift+I',
+    callback: sendToFrame('ToggleDevTools'),
+  },
+  {
+    accelerator: 'CommandOrControl+I',
+    callback: (window) => window?.webContents?.toggleDevTools?.(),
+  },
+];
 
 const createWindow = () => {
   const webPreferences = {
@@ -59,25 +63,6 @@ const createWindow = () => {
     window.loadFile('dist/index.html');
   }
 };
-
-const windowShortcuts = [
-  {
-    accelerator: 'CommandOrControl+R',
-    callback: sendToFrame('Refresh'),
-  },
-  {
-    accelerator: 'Command+Option+I',
-    callback: sendToFrame('ToggleDevTools'),
-  },
-  {
-    accelerator: 'Control+Shift+I',
-    callback: sendToFrame('ToggleDevTools'),
-  },
-  {
-    accelerator: 'CommandOrControl+I',
-    callback: (window) => window?.webContents?.toggleDevTools?.(),
-  },
-];
 
 (() => {
   app.disableHardwareAcceleration();
@@ -125,6 +110,17 @@ const windowShortcuts = [
 
   ipcMain.handle('fetch', (event, ...args) => fetch(...args));
 
+  ipcMain.handle('beforeunload', (event, context = {}) => {
+    const { beacons = [] } = context;
+
+    beacons.forEach((beacon) => {
+      const got = store.get(beacon);
+
+      got?.terminate?.();
+      store.delete(beacon);
+    });
+  });
+
   ipcMain.handle('NodeWorker', (event, beacon, action, ...args) => {
     const { sender } = event;
 
@@ -132,12 +128,23 @@ const windowShortcuts = [
       const beacon = arg?.beacon;
       const functional = isFunction(arg);
 
+      const got = store.get(beacon);
+      const actual = got?.deref?.();
+
+      if (actual) {
+        return actual;
+      }
+
       if (!functional) {
         return arg;
       }
 
-      // TODO 移除无用 function，防止内存泄漏
-      return (...params) => sender.send('StoreExecute', beacon, ...params);
+      const callback = (...params) => sender.send('StoreExecute', beacon, ...params);
+      const ref = new WeakRef(callback);
+
+      registry.register(callback, beacon);
+      store.set(beacon, ref);
+      return callback;
     };
 
     args = args.map(toFunction);
@@ -151,8 +158,10 @@ const windowShortcuts = [
       store.set(beacon, worker);
     } else {
       const worker = store.get(beacon);
+      const removed = action === 'terminate';
 
       worker?.[action]?.(...args);
+      removed && store.delete(beacon);
     }
   });
 
