@@ -75,6 +75,10 @@ const beforeunload = (() => {
   };
 })();
 
+navigator?.serviceWorker?.register?.(
+  '/cacher?neutron&localization&file=/browser/worker/cacher.js',
+);
+
 ipcRenderer.addListener('Refresh', (event, beacon) => {
   const webview = document.querySelector('webview');
 
