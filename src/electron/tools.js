@@ -18,7 +18,7 @@ const createURL = (source) => {
 };
 
 const sendToFrame = (...args) => (window) => {
-  const { webContents: { mainFrame } = {} } = window;
+  const { webContents: { mainFrame = {} } = {} } = window;
   const { framesInSubtree = [] } = mainFrame;
 
   const forEach = (item) => item?.send?.(...args);

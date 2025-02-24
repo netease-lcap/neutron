@@ -71,13 +71,14 @@ const beforeunload = (() => {
     const beacons = Array.from(store.keys());
     const context = { beacons };
 
+    window.gc();
     ipcRenderer.invoke('beforeunload', context);
   };
 })();
 
-// navigator?.serviceWorker?.register?.(
-//   '/cacher?neutron&localization&file=/browser/worker/cacher.js',
-// );
+navigator?.serviceWorker?.register?.(
+  '/cacher?neutron&localization&file=/browser/worker/cacher.js',
+);
 
 ipcRenderer.addListener('Refresh', (event, beacon) => {
   const webview = document.querySelector('webview');

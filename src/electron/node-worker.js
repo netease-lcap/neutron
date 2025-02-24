@@ -64,7 +64,10 @@ function mainThread() {
       /^data:/.test(url$1) ? mod = url$1 : mod = url.fileURLToPath(new url.URL(url$1, baseUrl));
       let worker = new threads__default.default.Worker(
         url.fileURLToPath(importMetaUrl),
-        { workerData: { mod, name, type } }
+        {
+          workerData: { mod, name, type },
+          resourceLimits: { maxOldGenerationSizeMb: 32 * 1024 },
+        }
       );
       Object.defineProperty(this, WORKER, {
         value: worker
@@ -81,7 +84,8 @@ function mainThread() {
       this[WORKER].postMessage(data, transferList);
     }
     terminate() {
-      this[WORKER].terminate();
+      this[WORKER].postMessage('exit');
+      setTimeout(() => this[WORKER].terminate());
     }
   }
   return Worker2.prototype.onmessage = Worker2.prototype.onerror = Worker2.prototype.onclose = null, Worker2;
@@ -100,6 +104,11 @@ function workerThread() {
     });
   }
   threads__default.default.parentPort.on("message", (data) => {
+    if (data === 'exit') {
+      process.exit(0);
+      return;
+    }
+
     let event = new Event("message");
     event.data = data, q == null ? self.dispatchEvent(event) : q.push(event);
   }), threads__default.default.parentPort.on("error", (err) => {

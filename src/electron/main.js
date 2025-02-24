@@ -69,6 +69,10 @@ const createWindow = () => {
 };
 
 (() => {
+  const memoryLimitMb = 16 * 1024;
+  const jsFlag = `--expose_gc --max-old-space-size=${memoryLimitMb}`;
+
+  app.commandLine.appendSwitch('js-flags', jsFlag);
   app.disableHardwareAcceleration();
 
   app.on('window-all-closed', () => {
@@ -120,7 +124,9 @@ const createWindow = () => {
       const { accelerator, callback } = item;
 
       const listener = () => callback(window);
+      const closed = () => globalShortcut.unregister(accelerator);
 
+      window.on('close', closed);
       globalShortcut.register(accelerator, listener);
     });
   });
