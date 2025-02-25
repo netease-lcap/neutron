@@ -1,9 +1,20 @@
+const fs = require('fs');
 const path = require('path');
 
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 const basePath = path.resolve(__dirname, './');
+
+const electronPath = (() => {
+  const matched = process.platform === 'darwin';
+  const folder = matched ? 'macos' : 'windows';
+  const built = `./builds/${folder}`;
+
+  return path.resolve(basePath, built);
+})();
+
+const enabled = fs.existsSync(electronPath);
 
 module.exports = {
   packagerConfig: {
@@ -37,6 +48,10 @@ module.exports = {
     {
       name: '@electron-forge/plugin-auto-unpack-natives',
       config: {},
+    },
+    {
+      name: '@electron-forge/plugin-local-electron',
+      config: { electronPath, enabled },
     },
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application

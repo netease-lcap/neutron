@@ -30,6 +30,7 @@
     "@electron-forge/maker-zip": "^7.6.1",
     "@electron-forge/plugin-auto-unpack-natives": "^7.6.1",
     "@electron-forge/plugin-fuses": "^7.6.1",
+    "@electron-forge/plugin-local-electron": "^7.7.0",
     "@electron-forge/publisher-github": "^7.6.1",
     "@electron/fuses": "^1.8.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
