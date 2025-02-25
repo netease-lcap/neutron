@@ -7,9 +7,7 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 const basePath = path.resolve(__dirname, './');
 
 const electronPath = (() => {
-  const matched = process.platform === 'darwin';
-  const folder = matched ? 'macos' : 'windows';
-  const built = `./builds/${folder}`;
+  const built = `./builds/${process.platform}`;
 
   return path.resolve(basePath, built);
 })();
