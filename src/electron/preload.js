@@ -76,6 +76,18 @@ const beforeunload = (() => {
   };
 })();
 
+(() => {
+  const { performance: { memory = {} } = {} } = window;
+  const { usedJSHeapSize = 0 } = memory;
+
+  const oneKB = 1024;
+  const oneMB = oneKB * 1024;
+  const oneGB = oneMB * 1024;
+  const large = usedJSHeapSize > oneGB;
+
+  large && window?.gc?.();
+})();
+
 // TODO Electron redirect 存在 bug - https://github.com/electron/electron/issues/43715
 // navigator?.serviceWorker?.register?.(
 //   '/cacher?neutron&localization&file=/browser/worker/cacher.js',

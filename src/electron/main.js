@@ -73,6 +73,8 @@ const createWindow = () => {
   const jsFlag = `--expose_gc --max-old-space-size=${memoryLimitMb}`;
 
   app.commandLine.appendSwitch('js-flags', jsFlag);
+  app.commandLine.appendSwitch('force_high_performance_gpu');
+
   app.disableHardwareAcceleration();
 
   app.on('window-all-closed', () => {
