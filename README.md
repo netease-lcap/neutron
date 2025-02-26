@@ -16,3 +16,30 @@ npm run start
 npm install
 npm run make
 ```
+
+### 特有功能
+
+#### window.gc
+```javascript
+// 主动触发浏览器的垃圾回收
+window?.gc?.();
+```
+
+#### window.electron.fetch
+```javascript
+// Node.js 环境发起接口请求，可以用于绕过浏览器跨域策略
+window?.electron?.fetch?.(url);
+```
+
+#### window.electron.createWorker
+```javascript
+// 创建运行在 Node.js 环境下的 Worker
+(async () => {
+  const fetched = await fetch(link);
+  const blob = await fetched.blob();
+  const buffer = await blob.arrayBuffer();
+  const options = { name: 'node-worker' };
+
+  window?.electron?.createWorker?.(buffer, options);
+})();
+```
