@@ -98,26 +98,28 @@ const createWindow = () => {
 (async () => {
   await app.whenReady();
 
-  protocol.handle('https', (request = {}) => {
-    const { url = '' } = request;
-    const { pathname, searchParams } = new URL(url);
-
-    const a = searchParams.has('neutron');
-    const b = searchParams.has('localization');
-
-    if (!a || !b) {
-      return session.defaultSession.fetch(request, {
-        bypassCustomProtocolHandlers: true,
-      });
-    }
-
-    const source = searchParams.get('file') || pathname;
-    const filePath = path.resolve(basePath, `../${source}`);
-    const file = pathToFileURL(filePath);
-    const string = file.toString();
-
-    return net.fetch(string);
-  });
+  // TODO Electron redirect 存在 bug - https://github.com/electron/electron/issues/43715
+  // protocol.handle('https', (request = {}) => {
+  //   const { url = '' } = request;
+  //   const { pathname, searchParams } = new URL(url);
+  // 
+  //   const a = searchParams.has('neutron');
+  //   const b = searchParams.has('localization');
+  // 
+  //   if (!a || !b) {
+  //     return session.defaultSession.fetch(request, {
+  //       bypassCustomProtocolHandlers: true,
+  //       redirect: 'manual',
+  //     });
+  //   }
+  // 
+  //   const source = searchParams.get('file') || pathname;
+  //   const filePath = path.resolve(basePath, `../${source}`);
+  //   const file = pathToFileURL(filePath);
+  //   const string = file.toString();
+  // 
+  //   return net.fetch(string);
+  // });
 
   app.on('browser-window-focus', (event, window) => {
     windowShortcuts.forEach((item = {}) => {

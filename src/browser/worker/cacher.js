@@ -20,12 +20,12 @@ const isCacheableRequest = (request) => {
 };
 
 const isCacheableResponse = (response) => {
-  const { headers } = response;
+  const { ok, headers } = response;
 
   const contentType = headers.get('content-type') || '';
   const some = (item) => contentType.startsWith(item);
 
-  return cacheableContentTypes.some(some);
+  return ok && cacheableContentTypes.some(some);
 };
 
 const isCacheable = (request, response) => {
@@ -33,7 +33,7 @@ const isCacheable = (request, response) => {
 };
 
 const putInCache = async (request, response) => {
-  const cache = await caches.open('v1');
+  const cache = await caches.open('neutron-v1');
 
   await cache.put(request, response);
 };
