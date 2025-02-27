@@ -5,16 +5,17 @@
   "description": "Electron for CodeWave",
   "main": "src/electron/main.js",
   "scripts": {
+    "clean": "rm -rf dist out",
     "browser:build": "webpack --config webpack/webpack.config.prd.js",
     "browser:start": "webpack-dev-server --config webpack/webpack.config.dev.js",
     "electron:make": "electron-forge make",
     "electron:make-intel": "electron-forge make --arch x64",
     "electron:package": "electron-forge package",
     "electron:start": "electron-forge start --inspect-electron",
-    "make": "cross-env NODE_ENV=production npm-run-all --sequential browser:build electron:make",
-    "make-intel": "cross-env NODE_ENV=production npm-run-all --sequential browser:build electron:make-intel",
-    "package": "cross-env NODE_ENV=production npm-run-all --sequential browser:build electron:package",
-    "start": "cross-env NODE_ENV=development npm-run-all --parallel browser:start electron:start"
+    "make": "cross-env NODE_ENV=production npm-run-all --sequential clean browser:build electron:make",
+    "make-intel": "cross-env NODE_ENV=production npm-run-all --sequential clean browser:build electron:make-intel",
+    "package": "cross-env NODE_ENV=production npm-run-all --sequential clean browser:build electron:package",
+    "start": "cross-env NODE_ENV=development npm-run-all --parallel clean browser:start electron:start"
   },
   "license": "ISC",
   "devDependencies": {

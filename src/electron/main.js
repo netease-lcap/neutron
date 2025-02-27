@@ -15,6 +15,7 @@ const {
   createURL,
   sendToFrame,
   sendToAllWindows,
+  execCommands,
 } = require('./tools.js');
 
 const Worker = require('./node-worker.js');
@@ -154,6 +155,11 @@ const createWindow = () => {
       got?.terminate?.();
       store.delete(beacon);
     });
+  });
+
+  ipcMain.handle('execCommands', (event, commands = [], options = {}) => {
+    options = { encoding: 'utf8', ...options };
+    return execCommands(commands, options);
   });
 
   ipcMain.handle('NodeWorker', (event, beacon, action, ...args) => {

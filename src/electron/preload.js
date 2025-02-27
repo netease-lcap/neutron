@@ -35,14 +35,16 @@ const fromFunction = (arg) => {
   return arg;
 };
 
-const ipcInvoke = (action, ...args) => {
+const ipcInvoke = (channel, ...args) => {
   args = args.map(fromFunction);
 
-  return ipcRenderer.invoke(action, ...args);
+  return ipcRenderer.invoke(channel, ...args);
 };
 
-const ipvWorkerInvoke = (workerBeacon) => (action) => (...args) => {
-  return ipcInvoke('NodeWorker', workerBeacon, action, ...args);
+const ipcInvokeWithChannel = (channel) => (...args) => ipcInvoke(channel, ...args);
+
+const ipvWorkerInvoke = (workerBeacon) => (channel) => (...args) => {
+  return ipcInvoke('NodeWorker', workerBeacon, channel, ...args);
 };
 
 const createWorker = (...args) => {
@@ -143,9 +145,11 @@ ipcRenderer.addListener('StoreExecute', (event, beacon, ...params) => {
 contextBridge.exposeInMainWorld('electron', {
   createWorker,
   beforeunload,
+  invoke: ipcInvokeWithChannel,
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,
   electron: () => process.versions.electron,
   log: (...args) => console.log(...args),
-  fetch: (...args) => ipcRenderer.invoke('fetch', ...args),
+  fetch: ipcInvokeWithChannel('fetch'),
+  execCommands: ipcInvokeWithChannel('execCommands'),
 });

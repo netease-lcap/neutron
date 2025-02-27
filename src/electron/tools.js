@@ -1,3 +1,4 @@
+const { execSync } = require('child_process');
 const { BrowserWindow } = require('electron');
 
 const isFunction = (arg) => {
@@ -32,9 +33,25 @@ const sendToAllWindows = (...args) => {
   windows.forEach(sendToFrame(...args));
 };
 
+const execCommand = (...args) => execSync(...args);
+
+const execCommands = (commands = [], ...args) => {
+  const arraied = Array.isArray(commands);
+  const merged = arraied ? commands : [commands];
+
+  const reduce = async (promise, command) => {
+    await promise;
+    return execCommand(command, ...args);
+  };
+
+  return merged.reduce(reduce, undefined);
+};
+
 module.exports = {
   isFunction,
   createURL,
   sendToFrame,
   sendToAllWindows,
+  execCommand,
+  execCommands,
 };
