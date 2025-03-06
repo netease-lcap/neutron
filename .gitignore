@@ -2,8 +2,8 @@
 logs
 *.log
 
-dist
 out
+dist
 node_modules
 
 .env
