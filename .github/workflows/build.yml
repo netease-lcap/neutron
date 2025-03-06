@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout from neutron
         uses: actions/checkout@v4
+        with:
+          lfs: true
 
       - name: Setup Node 20.10.0
         uses: actions/setup-node@v4
