@@ -14,6 +14,8 @@ const electronPath = (() => {
 
 const enabled = fs.existsSync(electronPath);
 
+console.log(electronPath, enabled, process.platform);
+
 module.exports = {
   packagerConfig: {
     asar: true,
