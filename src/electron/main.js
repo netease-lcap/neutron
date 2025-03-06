@@ -145,6 +145,8 @@ const createWindow = () => {
   });
 
   ipcMain.handle('fetch', (event, ...args) => fetch(...args));
+  
+  ipcMain.handle('execCommands', (event, ...args) => execCommands(...args));
 
   ipcMain.handle('beforeunload', (event, context = {}) => {
     const { beacons = [] } = context;
@@ -155,11 +157,6 @@ const createWindow = () => {
       got?.terminate?.();
       store.delete(beacon);
     });
-  });
-
-  ipcMain.handle('execCommands', (event, commands = [], options = {}) => {
-    options = { encoding: 'utf8', ...options };
-    return execCommands(commands, options);
   });
 
   ipcMain.handle('NodeWorker', (event, beacon, action, ...args) => {

@@ -43,3 +43,12 @@ window?.electron?.fetch?.(url);
   window?.electron?.createWorker?.(buffer, options);
 })();
 ```
+
+#### window.electron.execCommands
+```javascript
+// 使用 Eletron 内置 Node.js 执行命令行
+(async () => {
+  // npm 安装必须要指定全局 -g，不然 Worker 内部脚本无法访问
+  await electron.execCommands('npm install pnpm -g');
+})();
+```

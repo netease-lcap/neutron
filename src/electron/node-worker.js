@@ -6,6 +6,7 @@ var fs = require('fs');
 var VM = require('vm');
 var threads = require('worker_threads');
 var { wrap } = require('module');
+var inspector = require('node:inspector');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
@@ -65,6 +66,7 @@ function mainThread() {
       let worker = new threads__default.default.Worker(
         url.fileURLToPath(importMetaUrl),
         {
+          env: process.env,
           workerData: { mod, name, type },
           resourceLimits: { maxOldGenerationSizeMb: 32 * 1024 },
         }
@@ -91,6 +93,8 @@ function mainThread() {
   return Worker2.prototype.onmessage = Worker2.prototype.onerror = Worker2.prototype.onclose = null, Worker2;
 }
 function workerThread() {
+  inspector.open();
+
   if (typeof global.WorkerGlobalScope == "function")
     return;
   let { mod, name, type } = threads__default.default.workerData;
@@ -152,12 +156,43 @@ function workerThread() {
     Promise.resolve().then(flush);
   }
 }
+
 function evaluateDataUrl(url, name) {
+  const { env: { NODE_PATH } = {} } = process;
   let { data } = parseDataUrl(url);
 
-  return VM__default.default.runInThisContext(wrap(data), {
-    filename: "worker.<" + (name || "data:") + ">"
-  })(exports, require, module, __filename, __dirname);
+  const created = (() => {
+    const realtivePath = '../../';
+
+    const result = Object.create(process);
+    const rootPath = path.resolve(__dirname, realtivePath);
+
+    result.cwd = () => rootPath;
+    return result;
+  })();
+
+  const mission = new Function(
+    'process',
+    'exports',
+    'require',
+    'module',
+    '__filename',
+    '__dirname',
+    data
+  );
+
+  if (!module?.paths?.includes?.(NODE_PATH)) {
+    NODE_PATH && module?.paths?.push(NODE_PATH);
+  }
+
+  return mission(
+    created,
+    exports,
+    require,
+    module,
+    __filename,
+    __dirname,
+  );
 }
 function parseDataUrl(url) {
   let [m, type, encoding, data] = url.match(/^data: *([^;,]*)(?: *; *([^,]*))? *,(.*)$/) || [];
