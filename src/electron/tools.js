@@ -54,8 +54,16 @@ const electronEnv = {
   ELECTRON_RUN_AS_NODE: 1,
 };
 
-const polyfillEnvironmentWithVariables = async (envPath, envNodePath, binFolder, libFolder, npmFolder) => {
+const polyfillEnvironmentWithVariables = async (context = {}) => {
   const { execPath, env = {} } = process;
+  const {
+    envPath,
+    envNodePath,
+    binFolder,
+    libFolder,
+    npmFolder,
+    spliter,
+  } = context;
 
   Object.assign(env, electronEnv);
 
@@ -63,14 +71,14 @@ const polyfillEnvironmentWithVariables = async (envPath, envNodePath, binFolder,
     const strings = [binFolder, envPath];
     const source = strings.filter(Boolean);
 
-    env.PATH = source.join(':');
+    env.PATH = source.join(spliter);
   }
 
   if (!envNodePath?.includes?.(libFolder)) {
     const strings = [libFolder, envNodePath];
     const source = strings.filter(Boolean);
 
-    env.NODE_PATH = source.join(':');
+    env.NODE_PATH = source.join(spliter);
   }
 
   if (!fs.existsSync(binFolder)) {
@@ -105,37 +113,41 @@ const polyfillEnvironment = async () => {
   switch (platform) {
     // MacOS
     case 'darwin': {
+      const spliter = ':';
       const envPath = env?.PATH;
       const envNodePath = env?.NODE_PATH;
       const binFolder = path.resolve(execPath, '../../bin');
       const libFolder = path.resolve(execPath, '../../lib/node_modules');
       const npmFolder = path.resolve(__dirname, '../../node_modules/npm');
 
-      await polyfillEnvironmentWithVariables(
+      await polyfillEnvironmentWithVariables({
         envPath,
         envNodePath,
         binFolder,
         libFolder,
         npmFolder,
-      );
+        spliter,
+      });
 
       break;
     }
     // Windows
     case 'win32': {
+      const spliter = ';';
       const envPath = env?.PATH;
       const envNodePath = env?.NODE_PATH;
       const binFolder = path.resolve(execPath, '../');
       const libFolder = path.resolve(execPath, '../node_modules');
       const npmFolder = path.resolve(__dirname, '../../node_modules/npm');
 
-      await polyfillEnvironmentWithVariables(
+      await polyfillEnvironmentWithVariables({
         envPath,
         envNodePath,
         binFolder,
         libFolder,
         npmFolder,
-      );
+        spliter,
+      });
 
       break;
     }
