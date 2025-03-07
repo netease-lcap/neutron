@@ -50,5 +50,9 @@ window?.electron?.fetch?.(url);
 (async () => {
   // npm install 必须要指定全局 -g，不然 Worker 内部无法访问对应依赖
   await window?.electron?.execCommands?.('npm install pnpm -g');
+  // npm install 必须要指定全局 -g，不然 Worker 内部无法访问对应依赖
+  await window?.electron?.execCommands?.(['npm install pnpm -g']);
+  // npm install 必须要指定全局 -g，不然 Worker 内部无法访问对应依赖
+  await window?.electron?.execCommands?.(['npm install pnpm -g'], { encoding: 'utf8' });
 })();
 ```
