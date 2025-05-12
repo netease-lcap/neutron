@@ -1,7 +1,7 @@
 {
   "name": "neutron",
   "version": "1.0.0",
-  "authors": "XiaoshuangLi",
+  "authors": "NetEase (Hangzhou) Network Co",
   "description": "Electron for CodeWave",
   "main": "src/electron/main.js",
   "repository": {
