@@ -26,8 +26,13 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       config: {
+        name: 'CodeWave',
+        productName: 'CodeWave 智能开发平台',
+        noMsi: true,
+        iconUrl: path.resolve(basePath, 'src/public/icon.ico'),
         // windows 存在 bug，开启 utf-8 beta 自定义图标
-        // setupIcon: path.resolve(basePath, 'src/public/icon.ico'),
+        setupIcon: path.resolve(basePath, 'src/public/icon.ico'),
+        loadingGif: path.resolve(basePath, 'src/public/loading.png'),
       },
     },
     {
