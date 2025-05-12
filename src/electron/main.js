@@ -10,6 +10,8 @@ const {
   globalShortcut,
 } = require('electron');
 
+const squirrel = require('electron-squirrel-startup');
+
 const {
   isFunction,
   createURL,
@@ -69,7 +71,7 @@ const createWindow = () => {
   }
 };
 
-(() => {
+const forRegister = () => {
   const memoryLimitMb = 16 * 1024;
   const jsFlag = `--expose_gc --max-old-space-size=${memoryLimitMb}`;
 
@@ -96,9 +98,9 @@ const createWindow = () => {
       return { action: 'deny' };
     });
   });
-})();
+};
 
-(async () => {
+const forRegisterWhenReady = async () => {
   await app.whenReady();
 
   // TODO Electron redirect 存在 bug - https://github.com/electron/electron/issues/43715
@@ -214,4 +216,13 @@ const createWindow = () => {
 
     createWindow();
   });
+};
+
+(() => {
+  if (squirrel) {
+    app.quit();
+  } else {
+    forRegister();
+    forRegisterWhenReady();
+  };
 })();
