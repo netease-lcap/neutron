@@ -11,6 +11,7 @@ const {
 } = require('electron');
 
 const squirrel = require('electron-squirrel-startup');
+const { updateElectronApp } = require('update-electron-app');
 
 const {
   isFunction,
@@ -222,6 +223,8 @@ const forRegisterWhenReady = async () => {
   if (squirrel) {
     app.quit();
   } else {
+    updateElectronApp();
+
     forRegister();
     forRegisterWhenReady();
   };

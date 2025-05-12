@@ -4,6 +4,10 @@
   "authors": "XiaoshuangLi",
   "description": "Electron for CodeWave",
   "main": "src/electron/main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/netease-lcap/neutron"
+  },
   "scripts": {
     "clean": "rm -rf dist out",
     "browser:build": "webpack --config webpack/webpack.config.prd.js",
@@ -32,7 +36,7 @@
     "@electron-forge/plugin-auto-unpack-natives": "^7.6.1",
     "@electron-forge/plugin-fuses": "^7.6.1",
     "@electron-forge/plugin-local-electron": "^7.7.0",
-    "@electron-forge/publisher-github": "^7.6.1",
+    "@electron-forge/publisher-github": "^7.8.1",
     "@electron/fuses": "^1.8.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
     "babel-loader": "^9.2.1",
@@ -66,6 +70,7 @@
   "dependencies": {
     "electron-squirrel-startup": "^1.0.1",
     "lodash": "^4.17.21",
-    "npm": "^10.9.2"
+    "npm": "^10.9.2",
+    "update-electron-app": "^3.1.1"
   }
 }

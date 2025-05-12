@@ -69,4 +69,13 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        prerelease: true,
+        repository: { owner: 'netease-lcap', name: 'neutron' },
+      },
+    },
+  ],
 };
