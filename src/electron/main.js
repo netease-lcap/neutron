@@ -27,6 +27,7 @@ const Worker = require('./node-worker.js');
 
 const basePath = path.resolve(__dirname, './');
 const preload = path.resolve(basePath, 'preload.js');
+const developing = process.env.NODE_ENV === 'development';
 
 const store = new Map();
 const registry = new FinalizationRegistry((beacon) => {
@@ -67,7 +68,7 @@ const createWindow = () => {
 
   window.maximize();
 
-  if (process.env.NODE_ENV === 'development') {
+  if (developing) {
     window.loadURL('http://localhost:1405');
   } else {
     window.loadFile('dist/index.html');
@@ -75,6 +76,10 @@ const createWindow = () => {
 };
 
 const forPolyfill = () => {
+  if (developing) {
+    return;
+  }
+
   updateElectronApp();
 
   Sentry.init({
