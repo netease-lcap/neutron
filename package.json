@@ -68,6 +68,7 @@
     "webpack-merge": "^6.0.1"
   },
   "dependencies": {
+    "@sentry/electron": "^6.5.0",
     "electron-squirrel-startup": "^1.0.1",
     "lodash": "^4.17.21",
     "npm": "^10.9.2",

@@ -6,10 +6,12 @@ const {
   ipcMain,
   session,
   protocol,
+  crashReporter,
   BrowserWindow,
   globalShortcut,
 } = require('electron');
 
+const Sentry = require('@sentry/electron/main');
 const squirrel = require('electron-squirrel-startup');
 const { updateElectronApp } = require('update-electron-app');
 
@@ -70,6 +72,14 @@ const createWindow = () => {
   } else {
     window.loadFile('dist/index.html');
   }
+};
+
+const forPolyfill = () => {
+  updateElectronApp();
+
+  Sentry.init({
+    dsn: 'https://8ff3df805699b018d8879f6f23edfebe@o4505198733361152.sentry.codewave.163.com/4509309441540096',
+  });
 };
 
 const forRegister = () => {
@@ -223,7 +233,7 @@ const forRegisterWhenReady = async () => {
   if (squirrel) {
     app.quit();
   } else {
-    updateElectronApp();
+    forPolyfill();
 
     forRegister();
     forRegisterWhenReady();
