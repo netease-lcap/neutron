@@ -14,12 +14,19 @@ const electronPath = (() => {
 
 const enabled = fs.existsSync(electronPath);
 
-module.exports = {
+const osxNotarize = {
+  teamId: 'CF44QJESLS',
+  appleId: process.env.APPLE_ID,
+  appleIdPassword: process.env.APPLE_ID_PASSWORD,
+};
+
+const forgeConfig = {
   packagerConfig: {
     asar: true,
     prune: true,
     icon: 'src/public/icon',
     name: 'CodeWave 智能开发平台',
+    osxSign: {},
   },
   rebuildConfig: {},
   makers: [
@@ -79,3 +86,20 @@ module.exports = {
     },
   ],
 };
+
+(() => {
+  if (process.platform !== 'darwin') {
+    return;
+  }
+
+  if (!process.env.APPLE_ID || !process.env.APPLE_ID_PASSWORD) {
+    console.warn(
+      'Should be notarizing, but environment variables APPLE_ID or APPLE_ID_PASSWORD are missing!',
+    );
+    return;
+  }
+
+  forgeConfig.packagerConfig.osxNotarize = forgeConfig;
+})();
+
+module.exports = forgeConfig;

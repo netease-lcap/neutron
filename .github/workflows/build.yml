@@ -26,6 +26,9 @@ jobs:
 
       - name: Make Neutron App
         run: npm install && npm run make
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
 
       - name: Upload
         uses: actions/upload-artifact@v4
