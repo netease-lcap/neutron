@@ -27,7 +27,7 @@ const useData = () => {
     canGoBack: false,
     canGoForward: false,
     title: 'CodeWave智能开发平台',
-    src: 'https://csforkf.lcap.codewave-test.163yun.com',
+    src: 'https://codewave.163.com',
   });
 
   return [value, setValue];
