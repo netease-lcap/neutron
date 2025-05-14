@@ -59,7 +59,7 @@ const useData = () => {
   );
 
   useEffect(
-    () => homeSrcHandler.set(value.homeSrc),
+    () => homeSrcHandler.set(value.homeSrc || DEFAULT_HOME_SRC),
     [value.homeSrc],
   );
 
