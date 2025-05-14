@@ -22,13 +22,34 @@ import {
 import Iconfont from '@/components/Iconfont';
 import WebView from '@/components/WebView';
 
+const KEY_HOMR_SRC = '$$home-src';
+const DEFAULT_HOME_SRC = 'https://codewave.163.com/';
+
+const getHomeSrc = () => {
+  const source = window.localStorage.getItem(KEY_HOMR_SRC);
+
+  return source || DEFAULT_HOME_SRC;
+};
+
+const setHomeSrc = (value = DEFAULT_HOME_SRC) => {
+  window.localStorage.setItem(KEY_HOMR_SRC, value);
+};
+
 const useData = () => {
+  const src = getHomeSrc();
+
   const [value, setValue] = useState({
+    src,
+    homeSrc: src,
     canGoBack: false,
     canGoForward: false,
     title: 'CodeWave智能开发平台',
-    src: 'https://codewave.163.com/',
   });
+
+  useEffect(
+    () => setHomeSrc(value.homeSrc),
+    [value.homeSrc],
+  );
 
   return [value, setValue];
 };
@@ -39,7 +60,13 @@ const Container = React.forwardRef((props = {}, ref) => {
   const webviewRef = useRef(null);
   const [data = {}, setData] = useData();
   const [uselessSrc, setUselessSrc] = useState('');
-  const { src, title, canGoBack, canGoForward } = data;
+  const {
+    src,
+    title,
+    homeSrc,
+    canGoBack,
+    canGoForward,
+  } = data;
 
   const cls = classnames({
     'components-container-render': true,
@@ -56,6 +83,17 @@ const Container = React.forwardRef((props = {}, ref) => {
 
   const onClickRefresh = useEventCallback(() => {
     webviewRef?.current?.reload?.();
+  }, [webviewRef]);
+
+  const onClickHome = useEventCallback(() => {
+    setData((prev = {}) => {
+      const { src: prevSrc, homeSrc: prevHomeSrc } = prev;
+
+      const same = prevSrc === prevHomeSrc;
+      const nextHomeSrc = same ? DEFAULT_HOME_SRC : prevSrc;
+
+      return { ...prev, homeSrc: nextHomeSrc };
+    });
   }, [webviewRef]);
 
   const onFocusSrc = useEventCallback((event) => {
@@ -93,6 +131,11 @@ const Container = React.forwardRef((props = {}, ref) => {
       disabled: !canGoForward,
     });
 
+    const homeCls = classnames({
+      'operations-item': true,
+      active: src === homeSrc,
+    });
+
     const searchCls = classnames({
       'head-search': true,
       failed: uselessSrc === src,
@@ -109,6 +152,9 @@ const Container = React.forwardRef((props = {}, ref) => {
           </div>
           <div className="operations-item" onClick={onClickRefresh}>
             <Iconfont className="icon" name="refresh" />
+          </div>
+          <div className={homeCls} onClick={onClickHome}>
+            <Iconfont className="icon" name="home" />
           </div>
         </div>
         <div className={searchCls}>

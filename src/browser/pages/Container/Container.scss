@@ -36,6 +36,16 @@
           background-color: rgba(white, .3);
         }
 
+        &.active {
+          &:hover {
+            background-color: #004a77;
+          }
+
+          .icon {
+            color: #7fcfff;
+          }
+        }
+
         &.disabled {
           pointer-events: none;
 

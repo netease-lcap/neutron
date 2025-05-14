@@ -5,7 +5,7 @@ const Iconfont = React.forwardRef((props = {}, ref) => {
   const { className, name, ...others } = props;
 
   const cls = classnames({
-    'components-iconfont-render': true,
+    iconfont: true,
     [`icon-${name}`]: true,
     [className]: !!className,
   });
