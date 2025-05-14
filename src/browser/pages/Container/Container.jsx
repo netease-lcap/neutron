@@ -11,6 +11,7 @@ import React, {
   useContext,
 } from 'react';
 import classnames from 'classnames';
+import debounce from 'lodash/debounce';
 
 import BabyForm from 'react-baby-form';
 
@@ -22,21 +23,27 @@ import {
 import Iconfont from '@/components/Iconfont';
 import WebView from '@/components/WebView';
 
-const KEY_HOMR_SRC = '$$home-src';
+const KEY_HOME_SRC = '$$home-src';
+const KEY_LAST_SRC = '$$last-src';
 const DEFAULT_HOME_SRC = 'https://codewave.163.com/';
 
-const getHomeSrc = () => {
-  const source = window.localStorage.getItem(KEY_HOMR_SRC);
-
-  return source || DEFAULT_HOME_SRC;
+const storage = {
+  get: (...args) => window.localStorage.getItem(...args),
+  set: debounce((...args) => window.localStorage.setItem(...args), 300),
 };
 
-const setHomeSrc = (value = DEFAULT_HOME_SRC) => {
-  window.localStorage.setItem(KEY_HOMR_SRC, value);
-};
+const createHandler = (key) => ({
+  get: (...args) => storage.get(key, ...args),
+  set: (...args) => storage.set(key, ...args),
+});
 
 const useData = () => {
-  const src = getHomeSrc();
+  const homeSrcHandler = createHandler(KEY_HOME_SRC);
+  const lastSrcHandler = createHandler(KEY_LAST_SRC);
+
+  const src = lastSrcHandler.get()
+    || homeSrcHandler.get()
+    || DEFAULT_HOME_SRC;
 
   const [value, setValue] = useState({
     src,
@@ -47,7 +54,12 @@ const useData = () => {
   });
 
   useEffect(
-    () => setHomeSrc(value.homeSrc),
+    () => lastSrcHandler.set(value.src),
+    [value.src],
+  );
+
+  useEffect(
+    () => homeSrcHandler.set(value.homeSrc),
     [value.homeSrc],
   );
 
