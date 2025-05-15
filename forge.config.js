@@ -105,14 +105,14 @@ const forgeConfig = {
     return;
   }
 
-  if (!process.env.APPLE_ID || !process.env.APPLE_ID_PASSWORD) {
+  if (!osxNotarize.appleId || !osxNotarize.appleIdPassword) {
     console.warn(
       'Should be notarizing, but environment variables APPLE_ID or APPLE_ID_PASSWORD are missing!',
     );
     return;
   }
 
-  forgeConfig.packagerConfig.osxNotarize = forgeConfig;
+  forgeConfig.packagerConfig.osxNotarize = osxNotarize;
 })();
 
 module.exports = forgeConfig;
