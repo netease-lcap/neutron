@@ -6,10 +6,23 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
 const basePath = path.resolve(__dirname, './');
 
-const electronPath = (() => {
+const electronPlatformPath = (() => {
   const built = `./builds/${process.platform}`;
 
   return path.resolve(basePath, built);
+})();
+
+const electronPlatformArchPath = (() => {
+  const built = `./builds/${process.platform}-${process.arch}`;
+
+  return path.resolve(basePath, built);
+})();
+
+const electronPath = (() => {
+  const list = [electronPlatformPath, electronPlatformArchPath];
+  const find = (item) => fs.existsSync(item);
+
+  return list.find(find);
 })();
 
 const enabled = fs.existsSync(electronPath);
