@@ -56,9 +56,17 @@ const forgeConfig = {
       },
     },
     {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      name: '@electron-forge/maker-dmg',
+      config: {
+        background: path.resolve(basePath, 'src/public/dmg-background.jpg'),
+        icon: path.resolve(basePath, 'src/public/dmg-icon.icns'),
+        format: 'ULFO',
+      },
     },
+    // {
+    //   name: '@electron-forge/maker-zip',
+    //   platforms: ['darwin'],
+    // },
     {
       name: '@electron-forge/maker-deb',
       config: {},
