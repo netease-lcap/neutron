@@ -39,30 +39,9 @@ const forgeConfig = {
     prune: true,
     icon: 'src/public/icon',
     name: 'CodeWave 智能开发平台',
-    osxSign: {},
   },
   rebuildConfig: {},
   makers: [
-    {
-      name: '@electron-forge/maker-squirrel',
-      config: {
-        name: 'CodeWave',
-        productName: 'CodeWave 智能开发平台',
-        noMsi: true,
-        iconUrl: path.resolve(basePath, 'src/public/icon.ico'),
-        // windows 存在 bug，开启 utf-8 beta 自定义图标
-        setupIcon: path.resolve(basePath, 'src/public/icon.ico'),
-        loadingGif: path.resolve(basePath, 'src/public/loading.png'),
-      },
-    },
-    {
-      name: '@electron-forge/maker-dmg',
-      config: {
-        background: path.resolve(basePath, 'src/public/dmg-background.jpg'),
-        icon: path.resolve(basePath, 'src/public/dmg-icon.icns'),
-        format: 'ULFO',
-      },
-    },
     // {
     //   name: '@electron-forge/maker-zip',
     //   platforms: ['darwin'],
@@ -109,9 +88,63 @@ const forgeConfig = {
 };
 
 (() => {
+  if (!process.env.GITHUB_SHA) {
+    return;
+  }
+
+  const folder = path.resolve(basePath, './builds');
+  const list = fs.readdirSync(folder);
+
+  const forEach = (item = '') => {
+    const matched = item.startsWith(process.platform);
+    const itemPath = path.resolve(basePath, `./builds/${item}`);
+
+    !matched && fs.rmSync(itemPath, { force: true, recursive: true });
+  };
+
+  list.forEach(forEach);
+})();
+
+(() => {
+  if (process.platform !== 'win32') {
+    return;
+  }
+
+  forgeConfig.packagerConfig.name = 'CodeWave';
+
+  forgeConfig.makers.push(
+    {
+      name: '@electron-forge/maker-squirrel',
+      config: {
+        name: 'CodeWave',
+        productName: 'CodeWave 智能开发平台',
+        noMsi: true,
+        iconUrl: path.resolve(basePath, 'src/public/icon.ico'),
+        // windows 存在 bug，开启 utf-8 beta 自定义图标
+        setupIcon: path.resolve(basePath, 'src/public/icon.ico'),
+        loadingGif: path.resolve(basePath, 'src/public/loading.png'),
+      },
+    },
+  );
+})();
+
+(() => {
   if (process.platform !== 'darwin') {
     return;
   }
+
+  forgeConfig.packagerConfig.osxSign = {};
+
+  forgeConfig.makers.push(
+    {
+      name: '@electron-forge/maker-dmg',
+      config: {
+        background: path.resolve(basePath, 'src/public/dmg-background.jpg'),
+        icon: path.resolve(basePath, 'src/public/dmg-icon.icns'),
+        format: 'ULFO',
+      },
+    },
+  );
 
   if (!osxNotarize.appleId || !osxNotarize.appleIdPassword) {
     console.warn(
