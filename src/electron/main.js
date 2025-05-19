@@ -85,6 +85,13 @@ const forPolyfill = () => {
   Sentry.init({
     dsn: 'https://8ff3df805699b018d8879f6f23edfebe@o4505198733361152.sentry.codewave.163.com/4509309441540096',
   });
+
+  crashReporter.start({
+    companyName: 'NetEase (Hangzhou) Network Co',
+    productName: 'Neutron',
+    ignoreSystemCrashHandler: true,
+    submitURL: 'https://o4505198733361152.sentry.codewave.163.com/api/4509309441540096/minidump/?sentry_key=8ff3df805699b018d8879f6f23edfebe',
+  });
 };
 
 const forRegister = () => {
