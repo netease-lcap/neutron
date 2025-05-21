@@ -111,16 +111,16 @@ const forRegister = () => {
     app.quit();
   });
 
-  app.on('web-contents-created', (event, webContents) => {
-    webContents.on('will-attach-webview', (event, webPreferences) => {
-      webPreferences.preload = webPreferences.preload || preload;
-    });
-
-    webContents.setWindowOpenHandler((event) => {
-      webContents.loadURL(event.url);
-      return { action: 'deny' };
-    });
-  });
+//   app.on('web-contents-created', (event, webContents) => {
+//     webContents.on('will-attach-webview', (event, webPreferences) => {
+//       webPreferences.preload = webPreferences.preload || preload;
+//     });
+// 
+//     webContents.setWindowOpenHandler((event) => {
+//       webContents.loadURL(event.url);
+//       return { action: 'deny' };
+//     });
+//   });
 };
 
 const forRegisterWhenReady = async () => {
