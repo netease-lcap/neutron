@@ -96,8 +96,8 @@ const forgeConfig = {
   const list = fs.readdirSync(folder);
 
   const forEach = (item = '') => {
-    const matched = item.startsWith(process.platform);
     const itemPath = path.resolve(basePath, `./builds/${item}`);
+    const matched = itemPath === electronPath;
 
     !matched && fs.rmSync(itemPath, { force: true, recursive: true });
   };

@@ -1,3 +1,4 @@
 *.zip filter=lfs diff=lfs merge=lfs -text
 *.exe filter=lfs diff=lfs merge=lfs -text
 builds/darwin-arm64/Electron.app/** filter=lfs diff=lfs merge=lfs -text
+builds/darwin-x64/Electron.app/** filter=lfs diff=lfs merge=lfs -text
