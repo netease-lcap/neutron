@@ -111,7 +111,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-15-large]
 
     steps:
       - name: Checkout from neutron
