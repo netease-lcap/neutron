@@ -101,7 +101,7 @@ const forRegister = () => {
   app.commandLine.appendSwitch('js-flags', jsFlag);
   app.commandLine.appendSwitch('force_high_performance_gpu');
 
-  app.disableHardwareAcceleration();
+  developing && app.disableHardwareAcceleration();
 
   app.on('window-all-closed', () => {
     if (process.platform === 'darwin') {
