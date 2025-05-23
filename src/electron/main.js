@@ -54,7 +54,9 @@ const windowShortcuts = [
   },
 ];
 
-const createWindow = () => {
+const createWindow = (event = {}) => {
+  const { referrer, url: src = '' } = event;
+
   const webPreferences = {
     webviewTag: true,
     devTools: true,
@@ -66,13 +68,18 @@ const createWindow = () => {
     webPreferences
   });
 
+  const encoded = src && encodeURIComponent(src);
+  const search = encoded ? `?src=${encoded}` : '';
+
   window.maximize();
 
   if (developing) {
-    window.loadURL('http://localhost:1405');
+    window.loadURL(`http://localhost:1405${search}`, { referrer });
   } else {
-    window.loadFile('dist/index.html');
+    window.loadFile('dist/index.html', { search });
   }
+
+  return window;
 };
 
 const forPolyfill = () => {
@@ -111,16 +118,16 @@ const forRegister = () => {
     app.quit();
   });
 
-//   app.on('web-contents-created', (event, webContents) => {
-//     webContents.on('will-attach-webview', (event, webPreferences) => {
-//       webPreferences.preload = webPreferences.preload || preload;
-//     });
-// 
-//     webContents.setWindowOpenHandler((event) => {
-//       webContents.loadURL(event.url);
-//       return { action: 'deny' };
-//     });
-//   });
+  app.on('web-contents-created', (event, webContents) => {
+    webContents.on('will-attach-webview', (event, webPreferences) => {
+      webPreferences.preload = webPreferences.preload || preload;
+    });
+
+    webContents.setWindowOpenHandler((event) => {
+      createWindow(event);
+      return { action: 'deny' };
+    });
+  });
 };
 
 const forRegisterWhenReady = async () => {

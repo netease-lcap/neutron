@@ -10,6 +10,7 @@ import React, {
   useImperativeHandle,
   useContext,
 } from 'react';
+import qs from 'qs';
 import classnames from 'classnames';
 import debounce from 'lodash/debounce';
 
@@ -37,11 +38,22 @@ const createHandler = (key) => ({
   set: (...args) => storage.set(key, ...args),
 });
 
+const getSrcFromSearch = () => {
+  const { location: { search = '' } = {} } = window;
+
+  const options = { ignoreQueryPrefix: true };
+  const query = qs.parse(search, options) || {};
+  const { src = '' } = query;
+
+  return window.decodeURIComponent(src);
+};
+
 const useData = () => {
   const homeSrcHandler = createHandler(KEY_HOME_SRC);
   const lastSrcHandler = createHandler(KEY_LAST_SRC);
 
-  const src = lastSrcHandler.get()
+  const src = getSrcFromSearch()
+    || lastSrcHandler.get()
     || homeSrcHandler.get()
     || DEFAULT_HOME_SRC;
 
