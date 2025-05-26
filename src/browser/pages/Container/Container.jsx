@@ -48,6 +48,24 @@ const getSrcFromSearch = () => {
   return window.decodeURIComponent(src);
 };
 
+const fetchAvailableSrc = async (src = '') => {
+  const httpSrc = src.replace(/^https:\/\//, 'http://');
+  const list = src === httpSrc ? [src] : [src, httpSrc];
+
+  const options = { method: 'HEAD' };
+
+  for (let i = 0; i < list.length; i += 1) {
+    const current = list[i];
+
+    try {
+      await window.electron.fetch(current, options);
+      return current;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+};
+
 const useData = () => {
   const homeSrcHandler = createHandler(KEY_HOME_SRC);
   const lastSrcHandler = createHandler(KEY_LAST_SRC);
@@ -129,15 +147,28 @@ const Container = React.forwardRef((props = {}, ref) => {
       return;
     }
 
-    try {
-      const options = { method: 'HEAD' };
-      await window.electron.fetch(src, options);
+    const { current } = webviewRef;
 
-      webviewRef.current?.loadURL?.(src);
-      setUselessSrc(null);
-    } catch (error) {
-      setUselessSrc(src);
+    const useful = src?.startsWith('http');
+    const href = useful ? src : `https://${src}`;
+
+    !useful && setData((prev) => ({ ...prev, src: href }));
+
+    const avaliableSrc = await fetchAvailableSrc(href);
+    const uselessSrc = href === avaliableSrc ? null : href;
+
+    setUselessSrc(uselessSrc);
+
+    if (!avaliableSrc) {
+      return;
     }
+
+    current?.loadURL?.(avaliableSrc);
+
+//     const listener = () => current?.loadURL?.(avaliableSrc);
+// 
+//     current.once('close', listener);
+//     current.close();
   });
 
   const onChangeSrc = useEventCallback((src) => {

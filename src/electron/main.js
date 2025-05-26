@@ -54,7 +54,7 @@ const windowShortcuts = [
   },
 ];
 
-const createWindow = (event = {}) => {
+const createWindow = (event = {}, options = {}) => {
   const { referrer, url: src = '' } = event;
 
   const webPreferences = {
@@ -64,14 +64,18 @@ const createWindow = (event = {}) => {
   };
 
   const window = new BrowserWindow({
+    ...options,
+    webPreferences,
     autoHideMenuBar: true,
-    webPreferences
   });
 
   const encoded = src && encodeURIComponent(src);
   const search = encoded ? `?src=${encoded}` : '';
 
+  const listener = () => window.removeAllListeners();
+
   window.maximize();
+  window.addListener('close', listener);
 
   if (developing) {
     window.loadURL(`http://localhost:1405${search}`, { referrer });
@@ -124,8 +128,12 @@ const forRegister = () => {
     });
 
     webContents.setWindowOpenHandler((event) => {
-      createWindow(event);
-      return { action: 'deny' };
+      const creater = (options) => {
+        const window = createWindow(event);
+        return options?.webContents;
+      };
+
+      return { action: 'allow', createWindow: creater };
     });
   });
 };
