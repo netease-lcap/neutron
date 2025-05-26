@@ -188,8 +188,11 @@ const forRegisterWhenReady = async () => {
   
   ipcMain.handle('execCommands', (event, ...args) => execCommands(...args));
 
-  ipcMain.handle('beforeunload', (event, context = {}) => {
+  ipcMain.handle('beforeunload', (event = {}, context = {}) => {
+    const { sender: { ipc } = {} } = event;
     const { beacons = [] } = context;
+
+    ipc?.removeAllListeners?.();
 
     beacons.forEach((beacon) => {
       const got = store.get(beacon);
