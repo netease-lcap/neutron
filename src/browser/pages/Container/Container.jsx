@@ -70,14 +70,16 @@ const useData = () => {
   const homeSrcHandler = createHandler(KEY_HOME_SRC);
   const lastSrcHandler = createHandler(KEY_LAST_SRC);
 
+  const homeSrc = homeSrcHandler.get()
+    || DEFAULT_HOME_SRC;
+
   const src = getSrcFromSearch()
     || lastSrcHandler.get()
-    || homeSrcHandler.get()
-    || DEFAULT_HOME_SRC;
+    || homeSrc;
 
   const [value, setValue] = useState({
     src,
-    homeSrc: src,
+    homeSrc,
     canGoBack: false,
     canGoForward: false,
     title: 'CodeWave智能开发平台',
