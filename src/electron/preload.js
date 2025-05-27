@@ -69,12 +69,12 @@ const beforeunload = (() => {
     }); 
   `);
 
-  return (...args) => {
+  return async (...args) => {
     const beacons = Array.from(store.keys());
     const context = { beacons };
 
-    window.gc();
-    ipcRenderer.invoke('beforeunload', context);
+    // window?.gc?.();
+    return ipcRenderer.invoke('beforeunload', context);
   };
 })();
 
@@ -87,7 +87,7 @@ const beforeunload = (() => {
   const oneGB = oneMB * 1024;
   const large = usedJSHeapSize > oneGB;
 
-  large && window?.gc?.();
+  // large && window?.gc?.();
 })();
 
 // TODO Electron redirect 存在 bug - https://github.com/electron/electron/issues/43715

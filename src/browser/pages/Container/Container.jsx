@@ -117,15 +117,24 @@ const Container = React.forwardRef((props = {}, ref) => {
     [className]: !!className,
   });
 
-  const onClickBack = useEventCallback(() => {
+  const beforeunload = useEventCallback(() => {
+    const code = 'window.electron?.beforeunload?.()';
+
+    return webviewRef?.current?.executeJavaScript(code);
+  });
+
+  const onClickBack = useEventCallback(async () => {
+    await beforeunload();
     webviewRef?.current?.goBack?.();
   }, [webviewRef]);
 
-  const onClickForward = useEventCallback(() => {
+  const onClickForward = useEventCallback(async() => {
+    await beforeunload();
     webviewRef?.current?.goForward?.();
   }, [webviewRef]);
 
-  const onClickRefresh = useEventCallback(() => {
+  const onClickRefresh = useEventCallback(async () => {
+    await beforeunload();
     webviewRef?.current?.reload?.();
   }, [webviewRef]);
 
@@ -165,12 +174,8 @@ const Container = React.forwardRef((props = {}, ref) => {
       return;
     }
 
+    await beforeunload();
     current?.loadURL?.(avaliableSrc);
-
-//     const listener = () => current?.loadURL?.(avaliableSrc);
-// 
-//     current.once('close', listener);
-//     current.close();
   });
 
   const onChangeSrc = useEventCallback((src) => {
@@ -278,12 +283,18 @@ const Container = React.forwardRef((props = {}, ref) => {
     const canGoBack = current.canGoBack();
     const canGoForward = current.canGoForward();
 
-    setData((prev) => ({
-      ...prev,
-      title,
-      canGoBack,
-      canGoForward,
-    }));
+    const object = { title, canGoBack, canGoForward };
+
+    const setter = (prev) => {
+      const every = (key) => object[key] === prev[key];
+
+      const keys = Object.keys(object);
+      const same = keys.every(every);
+
+      return same ? prev : { ...prev, ...object };
+    };
+
+    setData(setter);
   }, webviewRef);
 
   return (
