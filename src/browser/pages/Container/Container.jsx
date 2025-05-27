@@ -174,8 +174,14 @@ const Container = React.forwardRef((props = {}, ref) => {
       return;
     }
 
+    const url = current.getURL();
+    const same = url === avaliableSrc;
+
     await beforeunload();
-    current?.loadURL?.(avaliableSrc);
+
+    same
+      ? current?.reload?.()
+      : current?.loadURL?.(avaliableSrc);
   });
 
   const onChangeSrc = useEventCallback((src) => {
