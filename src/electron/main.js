@@ -11,7 +11,7 @@ const {
   globalShortcut,
 } = require('electron');
 
-const Sentry = require('@sentry/electron/main');
+// const Sentry = require('@sentry/electron/main');
 const squirrel = require('electron-squirrel-startup');
 const { updateElectronApp } = require('update-electron-app');
 
@@ -93,9 +93,9 @@ const forPolyfill = () => {
 
   updateElectronApp();
 
-  Sentry.init({
-    dsn: 'https://8ff3df805699b018d8879f6f23edfebe@o4505198733361152.sentry.codewave.163.com/4509309441540096',
-  });
+  // Sentry.init({
+  //   dsn: 'https://8ff3df805699b018d8879f6f23edfebe@o4505198733361152.sentry.codewave.163.com/4509309441540096',
+  // });
 
   crashReporter.start({
     companyName: 'NetEase (Hangzhou) Network Co',

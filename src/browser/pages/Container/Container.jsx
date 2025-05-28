@@ -138,17 +138,6 @@ const Container = React.forwardRef((props = {}, ref) => {
     webviewRef?.current?.reload?.();
   }, [webviewRef]);
 
-  const onClickHome = useEventCallback(() => {
-    setData((prev = {}) => {
-      const { src: prevSrc, homeSrc: prevHomeSrc } = prev;
-
-      const same = prevSrc === prevHomeSrc;
-      const nextHomeSrc = same ? DEFAULT_HOME_SRC : prevSrc;
-
-      return { ...prev, homeSrc: nextHomeSrc };
-    });
-  }, [webviewRef]);
-
   const onFocusSrc = useEventCallback((event) => {
     event.target?.select?.();
   });
@@ -199,11 +188,6 @@ const Container = React.forwardRef((props = {}, ref) => {
       disabled: !canGoForward,
     });
 
-    const homeCls = classnames({
-      'operations-item': true,
-      active: src === homeSrc,
-    });
-
     const searchCls = classnames({
       'head-search': true,
       failed: uselessSrc === src,
@@ -220,9 +204,6 @@ const Container = React.forwardRef((props = {}, ref) => {
           </div>
           <div className="operations-item" onClick={onClickRefresh}>
             <Iconfont className="icon" name="refresh" />
-          </div>
-          <div className={homeCls} onClick={onClickHome}>
-            <Iconfont className="icon" name="home" />
           </div>
         </div>
         <div className={searchCls}>
