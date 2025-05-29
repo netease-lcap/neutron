@@ -48,22 +48,23 @@ const getSrcFromSearch = () => {
   return window.decodeURIComponent(src);
 };
 
-const fetchAvailableSrc = async (src = '') => {
-  const httpSrc = src.replace(/^https:\/\//, 'http://');
-  const list = src === httpSrc ? [src] : [src, httpSrc];
-
+const isSecureSrc = async (src = '') => {
   const options = { method: 'HEAD' };
 
-  for (let i = 0; i < list.length; i += 1) {
-    const current = list[i];
-
-    try {
-      await window.electron.fetch(current, options);
-      return current;
-    } catch (error) {
-      console.error(error);
-    }
+  try {
+    await window.electron.fetch(src, options);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
   }
+};
+
+const isAvailableSrc = (src = '') => {
+  const httpSrc = src.replace(/^https:\/\//, 'http://');
+  const options = { method: 'HEAD' };
+
+  return isSecureSrc(httpSrc, options);
 };
 
 const useData = () => {
@@ -154,23 +155,25 @@ const Container = React.forwardRef((props = {}, ref) => {
 
     !useful && setData((prev) => ({ ...prev, src: href }));
 
-    const avaliableSrc = await fetchAvailableSrc(href);
-    const uselessSrc = href === avaliableSrc ? null : href;
+    const secure = await isSecureSrc(href);
+    const avaliable = await isAvailableSrc(href);
+
+    const uselessSrc = secure ? null : href;
 
     setUselessSrc(uselessSrc);
 
-    if (!avaliableSrc) {
+    if (!avaliable) {
       return;
     }
 
     const url = current.getURL();
-    const same = url === avaliableSrc;
+    const same = url === href;
 
     await beforeunload();
 
     same
       ? current?.reload?.()
-      : current?.loadURL?.(avaliableSrc);
+      : current?.loadURL?.(href);
   });
 
   const onChangeSrc = useEventCallback((src) => {

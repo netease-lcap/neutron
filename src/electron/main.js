@@ -111,6 +111,7 @@ const forRegister = () => {
 
   app.commandLine.appendSwitch('js-flags', jsFlag);
   app.commandLine.appendSwitch('force_high_performance_gpu');
+  app.commandLine.appendSwitch('ignore-certificate-errors', true);
 
   developing && app.disableHardwareAcceleration();
 
