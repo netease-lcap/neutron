@@ -142,6 +142,8 @@ const forRegister = () => {
 const forRegisterWhenReady = async () => {
   await app.whenReady();
 
+  app.commandLine.appendSwitch('lang', app.getLocale());
+
   // TODO Electron redirect 存在 bug - https://github.com/electron/electron/issues/43715
   // protocol.handle('https', (request = {}) => {
   //   const { url = '' } = request;
