@@ -11,7 +11,6 @@ const {
   globalShortcut,
 } = require('electron');
 
-// const Sentry = require('@sentry/electron/main');
 const squirrel = require('electron-squirrel-startup');
 const { updateElectronApp } = require('update-electron-app');
 
@@ -93,10 +92,6 @@ const forPolyfill = () => {
 
   updateElectronApp();
 
-  // Sentry.init({
-  //   dsn: 'https://8ff3df805699b018d8879f6f23edfebe@o4505198733361152.sentry.codewave.163.com/4509309441540096',
-  // });
-
   crashReporter.start({
     companyName: 'NetEase (Hangzhou) Network Co',
     productName: 'Neutron',
@@ -143,29 +138,6 @@ const forRegisterWhenReady = async () => {
   await app.whenReady();
 
   app.commandLine.appendSwitch('lang', app.getLocale());
-
-  // TODO Electron redirect 存在 bug - https://github.com/electron/electron/issues/43715
-  // protocol.handle('https', (request = {}) => {
-  //   const { url = '' } = request;
-  //   const { pathname, searchParams } = new URL(url);
-  // 
-  //   const a = searchParams.has('neutron');
-  //   const b = searchParams.has('localization');
-  // 
-  //   if (!a || !b) {
-  //     return session.defaultSession.fetch(request, {
-  //       bypassCustomProtocolHandlers: true,
-  //       redirect: 'manual',
-  //     });
-  //   }
-  // 
-  //   const source = searchParams.get('file') || pathname;
-  //   const filePath = path.resolve(basePath, `../${source}`);
-  //   const file = pathToFileURL(filePath);
-  //   const string = file.toString();
-  // 
-  //   return net.fetch(string);
-  // });
 
   app.on('browser-window-focus', (event, window) => {
     windowShortcuts.forEach((item = {}) => {
