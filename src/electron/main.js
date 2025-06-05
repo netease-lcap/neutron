@@ -73,8 +73,12 @@ const createWindow = (event = {}, options = {}) => {
 
   const listener = () => window.removeAllListeners();
 
+  window.hide();
+
   window.maximize();
   window.addListener('close', listener);
+
+  window.show();
 
   if (developing) {
     window.loadURL(`http://localhost:1405${search}`, { referrer });
