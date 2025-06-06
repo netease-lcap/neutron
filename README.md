@@ -1,7 +1,7 @@
 # Neutron
 
 Electron 搭建 CodeWave IDE 本地化应用：
-* **解决内存泄漏：** Chrome 使用 128 版本，解决高版本浏览器导致的内存泄漏问题；
+* **解决内存泄漏：** Chrome 使用指定版本，解决浏览器版本变更导致的内存泄漏问题；
 * **降低内存需求：** TS-Server 运行在 Node.js 环境，浏览器内存使用量降低 50% 以上；
 * **解除内存限制：** 定制构建 Eletron 版本，重置内存上限：浏览器（16GB）、Node.js（32GB）；
 * **落地前端服务：** 基于 Electron 内部 Node.js 运行前端服务，缓解服务器压力，现已验证通过 nasl-generator-fe。
