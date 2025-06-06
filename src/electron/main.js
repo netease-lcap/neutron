@@ -20,6 +20,7 @@ const {
   sendToFrame,
   sendToAllWindows,
   execCommands,
+  getLanguage,
 } = require('./tools.js');
 
 const Worker = require('./node-worker.js');
@@ -111,6 +112,7 @@ const forRegister = () => {
   app.commandLine.appendSwitch('js-flags', jsFlag);
   app.commandLine.appendSwitch('force_high_performance_gpu');
   app.commandLine.appendSwitch('ignore-certificate-errors', true);
+  app.commandLine.appendSwitch('lang', getLanguage());
 
   developing && app.disableHardwareAcceleration();
 
@@ -140,8 +142,6 @@ const forRegister = () => {
 
 const forRegisterWhenReady = async () => {
   await app.whenReady();
-
-  app.commandLine.appendSwitch('lang', app.getSystemLocale());
 
   app.on('browser-window-focus', (event, window) => {
     windowShortcuts.forEach((item = {}) => {

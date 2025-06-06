@@ -183,6 +183,22 @@ const execCommands = (commands = [], ...args) => {
   return array.reduce(reduce, undefined);
 };
 
+const keys = [
+  'LC_ALL',
+  'LC_MESSAGES',
+  'LANG',
+  'LANGUAGE',
+];
+
+const getLanguage = () => {
+  const reduce = (result, key) => result || process?.env?.[key] || '';
+  const source = keys.reduce(reduce, '');
+
+  const list = source.split('.').filter(Boolean);
+
+  return list[0];
+};
+
 module.exports = {
   isFunction,
   createURL,
@@ -190,4 +206,5 @@ module.exports = {
   sendToAllWindows,
   execCommand,
   execCommands,
+  getLanguage,
 };
