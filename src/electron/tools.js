@@ -185,6 +185,7 @@ const execCommands = (commands = [], ...args) => {
 
 const keys = [
   'LC_ALL',
+  'LC_CTYPE',
   'LC_MESSAGES',
   'LANG',
   'LANGUAGE',

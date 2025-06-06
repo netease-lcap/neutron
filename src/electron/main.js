@@ -106,14 +106,15 @@ const forPolyfill = () => {
 };
 
 const forRegister = () => {
+  const language = getLanguage();
   const memoryLimitMb = 16 * 1024;
   const jsFlag = `--expose_gc --max-old-space-size=${memoryLimitMb}`;
 
   app.commandLine.appendSwitch('js-flags', jsFlag);
   app.commandLine.appendSwitch('force_high_performance_gpu');
   app.commandLine.appendSwitch('ignore-certificate-errors', true);
-  app.commandLine.appendSwitch('lang', getLanguage());
 
+  language && app.commandLine.appendSwitch('lang', language);
   developing && app.disableHardwareAcceleration();
 
   app.on('window-all-closed', () => {
