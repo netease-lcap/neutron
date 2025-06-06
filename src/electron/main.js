@@ -141,7 +141,7 @@ const forRegister = () => {
 const forRegisterWhenReady = async () => {
   await app.whenReady();
 
-  app.commandLine.appendSwitch('lang', app.getLocale());
+  app.commandLine.appendSwitch('lang', app.getSystemLocale());
 
   app.on('browser-window-focus', (event, window) => {
     windowShortcuts.forEach((item = {}) => {
