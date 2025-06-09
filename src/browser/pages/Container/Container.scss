@@ -71,7 +71,6 @@ $blue4: #3e638a;
       display: flex;
       height: 100%;
       gap: $tabGap;
-      app-region: none;
 
       .tabs-item {
         flex: 1;
@@ -79,6 +78,11 @@ $blue4: #3e638a;
         position: relative;
         max-width: 235px;
         font-size: 12px;
+        app-region: none;
+
+        &.special {
+          flex: none;
+        }
 
         &.active {
           background: $black3;
