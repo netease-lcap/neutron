@@ -58,7 +58,9 @@ const createWindow = (event = {}, options = {}) => {
   const { referrer, url: src = '' } = event;
 
   const titleBarOverlay = {
-    color: 'transparent',
+    color: 'rgba(0,0,0,0)',
+    symbolColor: 'white',
+    height: 41,
   };
 
   const trafficLightPosition = {
@@ -90,7 +92,6 @@ const createWindow = (event = {}, options = {}) => {
 
   window.maximize();
   window.addListener('close', listener);
-  window.setWindowButtonVisibility(true);
 
   window.show();
 

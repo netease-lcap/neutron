@@ -48,6 +48,13 @@ $blue4: #3e638a;
         height: $hairHeight;
       }
     }
+
+    body[data-platform="win32"] {
+      .container-hair {
+        padding: 6px 65px 0 6px;
+        height: $hairHeight;
+      }
+    }
   }
 
   .container-hair {
