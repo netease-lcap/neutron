@@ -15,7 +15,9 @@ import { useFetch } from '@/shared/hooks';
 
 const toBlobURL = async (href = '') => {
   try {
-    const buffer = href && await electron?.fetchBuffer(href);
+    const macthed = href?.startsWith?.('http');
+
+    const buffer = macthed && await electron?.fetchBuffer(href);
     const blob = buffer && new Blob([buffer]);
 
     return blob ? URL.createObjectURL(blob) : href;

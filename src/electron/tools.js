@@ -195,9 +195,11 @@ const getLanguage = () => {
   const reduce = (result, key) => result || process?.env?.[key] || '';
   const source = keys.reduce(reduce, '');
 
+  const reg = /[^a-zA-Z0-9]/g;
   const list = source.split('.').filter(Boolean);
+  const [first] = list;
 
-  return list[0];
+  return first?.replace?.(reg, '-');
 };
 
 module.exports = {
