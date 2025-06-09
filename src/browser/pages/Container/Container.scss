@@ -7,11 +7,13 @@ $black6: #d9dadc;
 
 $red: #dc362e;
 
+$orange: #faad14;
+$orange2: #fffbe6;
+
 $blue: #6aa4ff;
 $blue2: #7fcfff;
 $blue3: #004a77;
 $blue4: #3e638a;
-
 
 %ellipsis {
   text-overflow: ellipsis;
@@ -267,6 +269,7 @@ $blue4: #3e638a;
     gap: 10px;
     padding: 5px 15px 8px 15px;
     background: $black3;
+    border-bottom: 1px solid rgba(white, .05);
 
     .head-operations {
       display: flex;
@@ -407,12 +410,13 @@ $blue4: #3e638a;
     z-index: 10;
 
     .tips-item {
-      padding: 5px 8px;
+      padding: 8px 12px;
       width: 220px;
-      color: $black4;
-      background: white;
+      color: rgba(black, .7);
       border-radius: 8px 0 0 8px;
+      border: 1px solid $black4;
       box-shadow: 0 0 3px rgba(black, .2);
+      background: $black6;
       animation: slide 2.8s linear both;
 
       & + .tips-item {
@@ -420,18 +424,21 @@ $blue4: #3e638a;
       }
 
       &.warning {
-        .title {
-          color: orange;
-        }
+        background: $orange2;
+        border: 1px solid $orange;
       }
 
       .title {
-        font-size: 13px;
-        font-weight: bold;
+        font-size: 14px;
+
+        & + * {
+          margin-top: 6px;
+        }
       }
 
       .description {
         font-size: 12px;
+        opacity: .8;
       }
     }
   }
