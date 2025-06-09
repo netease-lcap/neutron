@@ -52,6 +52,26 @@ const windowShortcuts = [
     accelerator: 'CommandOrControl+I',
     callback: (window) => window?.webContents?.toggleDevTools?.(),
   },
+  {
+    accelerator: 'CommandOrControl+W',
+    callback: () => sendToAllWindows('HandleTab', { type: 'close' }),
+  },
+  {
+    accelerator: 'CommandOrControl+N',
+    callback: () => sendToAllWindows('HandleTab', { type: 'add' }),
+  },
+  {
+    accelerator: 'CommandOrControl+T',
+    callback: () => sendToAllWindows('HandleTab', { type: 'add' }),
+  },
+  {
+    accelerator: 'Command+Shift+T',
+    callback: () => sendToAllWindows('HandleTab', { type: 'recover' }),
+  },
+  {
+    accelerator: 'Control+Shift+T',
+    callback: () => sendToAllWindows('HandleTab', { type: 'recover' }),
+  },
 ];
 
 const createWindow = (event = {}, options = {}) => {
@@ -149,9 +169,10 @@ const forRegister = () => {
         const { url: src, referrer = {} } = event;
         const { url: httpreferrer } = referrer;
 
-        const detail = { src, httpreferrer };
+        const state = { src, httpreferrer }
+        const detail = { type: 'add', state };
 
-        sendToAllWindows('CreateTab', detail);
+        sendToAllWindows('HandleTab', detail);
         options?.webContents?.destroy?.();
 
         return options?.webContents;

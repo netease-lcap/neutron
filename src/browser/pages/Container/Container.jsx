@@ -29,6 +29,16 @@ import { useData, useCurrent } from './hooks';
 import ContainerView from './ContainerView';
 import ContainerFavicon from './ContainerFavicon';
 
+const records = [];
+
+const addRecord = (current = {}) => {
+  current?.src && records.push(current);
+};
+
+const popRecord = (current = {}) => {
+  return records.pop();
+};
+
 const Container = React.forwardRef((props = {}, ref) => {
   const { className, ...others } = props;
 
@@ -71,6 +81,19 @@ const Container = React.forwardRef((props = {}, ref) => {
     } catch (error) {
       console.error(error);      
     }
+  });
+
+  const removeBySource = useEventCallback(async (source = current) => {
+    const { id: sourceId }  = source;
+
+    const element = document.getElementById(sourceId);
+    const filter = (item) => item?.id !== sourceId;
+    const filtered = data.filter(filter);
+
+    await beforeunload(element);
+
+    addRecord(source);
+    setData(filtered);
   });
 
   const onClickBack = useEventCallback(async () => {
@@ -128,6 +151,28 @@ const Container = React.forwardRef((props = {}, ref) => {
       : instance?.loadURL?.(href);
   });
 
+  const onHandleTab = useEventCallback(async (event = {}) => {
+    const { detail = {} } = event;
+    const { type, state = {} } = detail;
+
+    switch (type) {
+      case 'add': {
+        setCurrent({ active: true, ...state });
+
+        break;
+      }
+      case 'close': {
+        await removeBySource();
+        break;
+      }
+      case 'recover': {
+        const last = popRecord() || {};
+
+        setCurrent({ active: true, ...last });
+      }
+    }
+  });
+
   const renderHair = () => {
     const onClickAdd = () => {
       setCurrent({ active: true });
@@ -153,15 +198,9 @@ const Container = React.forwardRef((props = {}, ref) => {
       };
 
       const onClickClose = async (event) => {
-        const element = document.getElementById(id);
-
-        const filter = (current) => current?.id !== itemId;
-        const filtered = data.filter(filter);
-
         event.stopPropagation();
-        await beforeunload(element);
 
-        setData(filtered);
+        await removeBySource(item);
       };
 
       return (
@@ -332,15 +371,9 @@ const Container = React.forwardRef((props = {}, ref) => {
   }, [data.length])
 
   useEffect(() => {
-    const listener = (event = {}) => {
-      const { detail = {} } = event;
-
-      setCurrent({ active: true, ...detail });
-    };
-
-    document.addEventListener('create-tab', listener);
-    return () => document.removeEventListener('create-tab', listener);
-  }, [setCurrent]);
+    document.addEventListener('handle-tab', onHandleTab);
+    return () => document.removeEventListener('handle-tab', onHandleTab);
+  }, [onHandleTab]);
 
   return (
     <BabyForm

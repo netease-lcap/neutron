@@ -108,14 +108,14 @@ ipcRenderer.addListener('Refresh', (event) => {
   }
 });
 
-ipcRenderer.addListener('CreateTab', (event, detail) => {
+ipcRenderer.addListener('HandleTab', (event, detail) => {
   const webview = document.querySelector('webview.active');
 
   if (!webview) {
     return;
   }
 
-  const name = 'create-tab';
+  const name = 'handle-tab';
   const options = { detail };
   const custom = new CustomEvent(name, options);
 
