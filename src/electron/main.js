@@ -57,6 +57,15 @@ const windowShortcuts = [
 const createWindow = (event = {}, options = {}) => {
   const { referrer, url: src = '' } = event;
 
+  const titleBarOverlay = {
+    color: 'transparent',
+  };
+
+  const trafficLightPosition = {
+    x: 19,
+    y: 12,
+  };
+
   const webPreferences = {
     webviewTag: true,
     devTools: true,
@@ -66,6 +75,9 @@ const createWindow = (event = {}, options = {}) => {
   const window = new BrowserWindow({
     ...options,
     webPreferences,
+    titleBarOverlay,
+    trafficLightPosition,
+    titleBarStyle: 'hidden',
     autoHideMenuBar: true,
   });
 
@@ -78,6 +90,7 @@ const createWindow = (event = {}, options = {}) => {
 
   window.maximize();
   window.addListener('close', listener);
+  window.setWindowButtonVisibility(true);
 
   window.show();
 
@@ -130,9 +143,14 @@ const forRegister = () => {
       webPreferences.preload = webPreferences.preload || preload;
     });
 
-    webContents.setWindowOpenHandler((event) => {
+    webContents.setWindowOpenHandler((event = {}) => {
       const creater = (options) => {
-        const window = createWindow(event);
+        const { url: src, referrer = {} } = event;
+        const { url: httpreferrer } = referrer;
+
+        const detail = { src, httpreferrer };
+
+        sendToAllWindows('CreateTab', detail);
         return options?.webContents;
       };
 
@@ -165,6 +183,13 @@ const forRegisterWhenReady = async () => {
   });
 
   ipcMain.handle('fetch', (event, ...args) => fetch(...args));
+
+  ipcMain.handle('fetchBuffer', async (event, ...args) => {
+    const fetched = await fetch(...args);
+    const blob = await fetched.blob();
+
+    return blob.arrayBuffer();
+  });
   
   ipcMain.handle('execCommands', (event, ...args) => execCommands(...args));
 

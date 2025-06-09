@@ -95,25 +95,39 @@ const beforeunload = (() => {
 //   '/cacher?neutron&localization&file=/browser/worker/cacher.js',
 // );
 
-ipcRenderer.addListener('Refresh', (event, beacon) => {
-  const webview = document.querySelector('webview');
+ipcRenderer.addListener('Refresh', (event) => {
+  const webview = document.querySelector('webview.active');
 
   if (webview) {
     const name = 'refresh-webview';
-    const event = new CustomEvent(name);
+    const custom = new CustomEvent(name);
 
-    document.dispatchEvent(event);
+    document.dispatchEvent(custom);
   } else {
     window.location.reload();
   }
 });
 
-ipcRenderer.addListener('ToggleDevTools', (event, beacon) => {
-  const webview = document.querySelector('webview');
+ipcRenderer.addListener('CreateTab', (event, detail) => {
+  const webview = document.querySelector('webview.active');
+
+  if (!webview) {
+    return;
+  }
+
+  const name = 'create-tab';
+  const options = { detail };
+  const custom = new CustomEvent(name, options);
+
+  document.dispatchEvent(custom);
+});
+
+ipcRenderer.addListener('ToggleDevTools', (event) => {
+  const webview = document.querySelector('webview.active');
 
   const code = `
   (() => {
-    const webview = document.querySelector('webview');
+    const webview = document.querySelector('webview.active');
 
     if (!webview) {
       return;
@@ -146,10 +160,12 @@ contextBridge.exposeInMainWorld('electron', {
   createWorker,
   beforeunload,
   invoke: ipcInvokeWithChannel,
+  platform: () => process.platform,
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,
   electron: () => process.versions.electron,
   log: (...args) => console.log(...args),
   fetch: ipcInvokeWithChannel('fetch'),
+  fetchBuffer: ipcInvokeWithChannel('fetchBuffer'),
   execCommands: ipcInvokeWithChannel('execCommands'),
 });

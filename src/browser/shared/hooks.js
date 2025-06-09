@@ -1,6 +1,7 @@
 import {
   useRef,
   useMemo,
+  useState,
   useEffect,
   useCallback,
 } from 'react';
@@ -69,4 +70,19 @@ export const useLoopWhenWebViewReady = (callback, ref) => {
     current.addEventListener('dom-ready', listener);
     return () => effect && effect();
   }, [ref, statbleCallback]);
+};
+
+export const useFetch = (callback, dependencies = []) => {
+  const [state, setState] = useState();
+  const fetcher = useEventCallback(callback);
+
+  useEffect(() => {
+    (async () => {
+      const fetched = await fetcher();
+
+      setState(fetched);
+    })();
+  }, dependencies);
+
+  return state;
 };

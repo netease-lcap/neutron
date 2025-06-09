@@ -1,3 +1,31 @@
+$black: #262626;
+$black2: #282828;
+$black3: #3d3d3d;
+$black4: #6c6c6c;
+$black5: #c6c6c6;
+$black6: #d9dadc;
+
+$red: #dc362e;
+
+$blue: #6aa4ff;
+$blue2: #7fcfff;
+$blue3: #004a77;
+$blue4: #3e638a;
+
+
+%ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+%percenter {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+}
+
 @mixin containerRoot {
   @at-root {
     body {
@@ -7,13 +35,231 @@
   }
 }
 
+@mixin containerHair {
+  $hairHeight: 35px;
+  $tabGap: 6px;
+  $tabRadius: 12px;
+  $tabContentRadius: 10px;
+
+  @at-root {
+    body[data-platform="darwin"] {
+      .container-hair {
+        padding: 6px 0 0 92px;
+        height: $hairHeight;
+      }
+    }
+  }
+
+  .container-hair {
+    color: $black5;
+    background: $black;
+    user-select: none;
+    app-region: drag;
+
+    .hair-tabs {
+      --tab-radius: 12px;
+
+      display: flex;
+      height: 100%;
+      gap: $tabGap;
+      app-region: none;
+
+      .tabs-item {
+        flex: 1;
+        display: inline-block;
+        position: relative;
+        max-width: 235px;
+        font-size: 12px;
+
+        &.active {
+          background: $black3;
+          border-radius: $tabRadius $tabRadius 0 0;
+
+          .item-content {
+            transition: 0s;
+          }
+
+          .item-prefix,
+          .item-suffix {
+            position: absolute;
+            width: $tabRadius;
+            height: $tabRadius;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+
+            &:before {
+              content: '';
+              display: inline-block;
+              position: absolute;
+              bottom: 0;
+              width: $tabRadius * 2;
+              height: $tabRadius * 2;
+              border-radius: 50%;
+              box-shadow: 0 0 0 5px $black3;
+            }
+          }
+
+          .item-prefix {
+            right: 100%;
+
+            &:before {
+              right: 0;
+            }
+          }
+
+          .item-suffix {
+            left: 100%;
+
+            &:before {
+              left: 0;
+            }
+          }
+        }
+
+        &:not(.active) {
+          .item-prefix,
+          .item-suffix {
+            opacity: 0;
+          }
+        }
+
+        &:not(.active) {
+          & + .tabs-item:not(.active) {
+            &:before {
+              content: '';
+              display: inline-block;
+              position: absolute;
+              left: $tabGap * -0.5;
+              top: 7px;
+              height: 20px;
+              width: 2px;
+              height: 15px;
+              background: $black3;
+            }
+          }
+
+          &:hover {
+            &,
+            & + *:not(.active) {
+              &:before {
+                opacity: 0;
+              }
+            }
+          }
+        }
+
+        &:not(.active, .special) {
+          .item-content {
+            &:hover {
+              background-color: $blue3;
+            }
+          }
+        }
+
+        .item-content {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px 5px 5px;
+          height: 20px;
+          border-radius: $tabContentRadius;
+          transition: .2s;
+
+          .favicon {
+            height: 16px;
+            line-height: 1;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+
+            &[style] {
+              .icon {
+                opacity: 0;
+              }
+            }
+
+            .icon {
+              font-size: 18px;
+              font-weight: bold;
+              opacity: .8;
+              transform: translate(0, -0.5px);
+            }
+          }
+
+          .title {
+            flex: 1;
+            position: relative;
+
+            .text {
+              position: absolute;
+              left: 0;
+              right: 0;
+              transform: translate(0, -50%);
+
+              @extend %ellipsis;
+
+              &:empty {
+                &:before {
+                  content: '新标签页';
+                }
+              }
+            }
+          }
+
+          .tool {
+            position: relative;
+            line-height: 1;
+
+            &.tool-add {
+              .icon {
+                margin-top: 1px;
+                font-size: 15px;
+              }
+
+              &:hover {
+                &:before {
+                  opacity: 1;
+                  transition: .2s;
+                }
+              }
+
+              &:before {
+                content: '';
+                display: inline-block;
+                position: absolute;
+                width: 28px;
+                height: 28px;
+                opacity: 0;
+                background: $blue3;
+                border-radius: 50%;
+
+                @extend %percenter;
+              }
+            }
+
+            .icon {
+              margin-top: 2px;
+              color: white;
+              font-size: 12px;
+              font-weight: bold;
+              opacity: .9;
+              transform: scale(.9);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 @mixin containerHead {
   .container-head {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 15px;
-    background: #3d3d3d;
+    padding: 5px 15px 8px 15px;
+    background: $black3;
 
     .head-operations {
       display: flex;
@@ -38,11 +284,11 @@
 
         &.active {
           &:hover {
-            background-color: #004a77;
+            background-color: $blue3;
           }
 
           .icon {
-            color: #7fcfff;
+            color: $blue2;
           }
         }
 
@@ -50,12 +296,12 @@
           pointer-events: none;
 
           .icon {
-            color: #6c6c6c;
+            color: $black4;
           }
         }
 
         .icon {
-          color: #c6c6c6;
+          color: $black5;
           font-size: 20px;
           font-weight: 300;
         }
@@ -67,20 +313,20 @@
       flex: 1;
       padding: 6px 10px;
       border-radius: 50px;
-      background: #282828;
+      background: $black2;
       border: 2px solid transparent;
 
       &:focus-within {
-        border: 2px solid #6aa4ff;
+        border: 2px solid $blue;
       }
 
       &.failed {
-        border: 2px solid #dc362e;
+        border: 2px solid $red;
       }
 
       .search-input {
         flex: 1;
-        color: #c6c6c6;
+        color: $black5;
         font-size: 14px;
         font-weight: 300;
         border: none;
@@ -88,8 +334,8 @@
         background: transparent;
 
         &::selection {
-          color: #d9dadc;
-          background-color: #3e638a;
+          color: $black6;
+          background-color: $blue4;
         }
       }
     }
@@ -99,27 +345,47 @@
 @mixin containerBody {
   .container-body {
     flex: 1;
+    position: relative;
+    
 
     .body-webview {
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
 
+      &.active {
+        z-index: 1;
+      }
+
       &:empty {
-        &:before {
-          content: '加载中...';
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          color: #999;
-          font-size: 12px;
-          font-style: italic;
+        &:not([src]) {
+          background: $black3;
+
+          &:before {
+            content: '请认输入网址';
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            opacity: .8;
+
+            @extend %percenter;
+          }
+        }
+
+        &[src] {
           background: #f4f4f4;
-          z-index: -1;
+
+          &:before {
+            content: '加载中...';
+            color: #999;
+            font-size: 12px;
+            font-style: italic;
+            z-index: -1;
+
+            @extend %percenter;
+          }
         }
       }
     }
@@ -136,6 +402,7 @@
   height: 100vh;
 
   @include containerRoot;
+  @include containerHair;
   @include containerHead;
   @include containerBody;
 }

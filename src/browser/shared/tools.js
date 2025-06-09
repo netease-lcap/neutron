@@ -1,4 +1,4 @@
-export const loop = (callback, time = 100) => {
+export const loop = (callback, time = 300) => {
   let timer;
 
   const start = () => {

@@ -10,108 +10,42 @@ import React, {
   useImperativeHandle,
   useContext,
 } from 'react';
-import qs from 'qs';
 import classnames from 'classnames';
-import debounce from 'lodash/debounce';
 
 import BabyForm from 'react-baby-form';
 
-import {
-  useEventCallback,
-  useLoopWhenWebViewReady,
-} from '@/shared/hooks';
+import { useEventCallback } from '@/shared/hooks';
 
 import Iconfont from '@/components/Iconfont';
-import WebView from '@/components/WebView';
 
-const KEY_HOME_SRC = '$$home-src';
-const KEY_LAST_SRC = '$$last-src';
-const DEFAULT_HOME_SRC = 'https://codewave.163.com/';
+import {
+  isSecureSrc,
+  isAvailableSrc,
+  setToArray,
+} from './tools';
 
-const storage = {
-  get: (...args) => window.localStorage.getItem(...args),
-  set: debounce((...args) => window.localStorage.setItem(...args), 300),
-};
+import { useData, useCurrent } from './hooks';
 
-const createHandler = (key) => ({
-  get: (...args) => storage.get(key, ...args),
-  set: (...args) => storage.set(key, ...args),
-});
-
-const getSrcFromSearch = () => {
-  const { location: { search = '' } = {} } = window;
-
-  const options = { ignoreQueryPrefix: true };
-  const query = qs.parse(search, options) || {};
-  const { src = '' } = query;
-
-  return window.decodeURIComponent(src);
-};
-
-const isSecureSrc = async (src = '') => {
-  const options = { method: 'HEAD' };
-
-  try {
-    await window.electron.fetch(src, options);
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
-  }
-};
-
-const isAvailableSrc = (src = '') => {
-  const httpSrc = src.replace(/^https:\/\//, 'http://');
-  const options = { method: 'HEAD' };
-
-  return isSecureSrc(httpSrc, options);
-};
-
-const useData = () => {
-  const homeSrcHandler = createHandler(KEY_HOME_SRC);
-  const lastSrcHandler = createHandler(KEY_LAST_SRC);
-
-  const homeSrc = homeSrcHandler.get()
-    || DEFAULT_HOME_SRC;
-
-  const src = getSrcFromSearch()
-    || lastSrcHandler.get()
-    || homeSrc;
-
-  const [value, setValue] = useState({
-    src,
-    homeSrc,
-    canGoBack: false,
-    canGoForward: false,
-    title: 'CodeWave智能开发平台',
-  });
-
-  useEffect(
-    () => lastSrcHandler.set(value.src),
-    [value.src],
-  );
-
-  useEffect(
-    () => homeSrcHandler.set(value.homeSrc || DEFAULT_HOME_SRC),
-    [value.homeSrc],
-  );
-
-  return [value, setValue];
-};
+import ContainerView from './ContainerView';
+import ContainerFavicon from './ContainerFavicon';
 
 const Container = React.forwardRef((props = {}, ref) => {
   const { className, ...others } = props;
 
-  const webviewRef = useRef(null);
-  const [data = {}, setData] = useData();
+  const inputRef = useRef(null);
+
+  const [data = [], setData] = useData();
+  const [current = {}, setCurrent] = useCurrent(data, setData);
+
+  const [instance, setInstance] = useState();
   const [uselessSrc, setUselessSrc] = useState('');
+
   const {
-    src,
-    title,
-    homeSrc,
+    id,
+    src = '',
     canGoBack,
     canGoForward,
-  } = data;
+  } = current;
 
   const cls = classnames({
     'components-container-render': true,
@@ -121,23 +55,23 @@ const Container = React.forwardRef((props = {}, ref) => {
   const beforeunload = useEventCallback(() => {
     const code = 'window.electron?.beforeunload?.()';
 
-    return webviewRef?.current?.executeJavaScript(code);
+    return instance?.executeJavaScript(code);
   });
 
   const onClickBack = useEventCallback(async () => {
     await beforeunload();
-    webviewRef?.current?.goBack?.();
-  }, [webviewRef]);
+    instance?.goBack?.();
+  }, [instance]);
 
   const onClickForward = useEventCallback(async() => {
     await beforeunload();
-    webviewRef?.current?.goForward?.();
-  }, [webviewRef]);
+    instance?.goForward?.();
+  }, [instance]);
 
   const onClickRefresh = useEventCallback(async () => {
     await beforeunload();
-    webviewRef?.current?.reload?.();
-  }, [webviewRef]);
+    instance?.reload?.();
+  }, [instance]);
 
   const onFocusSrc = useEventCallback((event) => {
     event.target?.select?.();
@@ -148,12 +82,10 @@ const Container = React.forwardRef((props = {}, ref) => {
       return;
     }
 
-    const { current } = webviewRef;
-
     const useful = src?.startsWith('http');
     const href = useful ? src : `https://${src}`;
 
-    !useful && setData((prev) => ({ ...prev, src: href }));
+    !useful && setCurrent((prev) => ({ ...prev, src: href }));
 
     const secure = await isSecureSrc(href);
     const avaliable = await isAvailableSrc(href);
@@ -166,19 +98,91 @@ const Container = React.forwardRef((props = {}, ref) => {
       return;
     }
 
-    const url = current.getURL();
+    if (!instance?.src) {
+      instance.src = href;
+      return;
+    }
+
+    const url = instance.getURL();
     const same = url === href;
 
     await beforeunload();
 
     same
-      ? current?.reload?.()
-      : current?.loadURL?.(href);
+      ? instance?.reload?.()
+      : instance?.loadURL?.(href);
   });
 
-  const onChangeSrc = useEventCallback((src) => {
-    setData((prev) => ({ ...prev, src }));
-  });
+  const renderHair = () => {
+    const onClickAdd = () => {
+      setCurrent({ active: true });
+    };
+
+    const items = data.map((item = {}) => {
+      const {
+        id: itemId,
+        active,
+        title,
+        favicon,
+      } = item;
+
+      const itemCls = classnames({
+        'tabs-item': true,
+        active,
+      });
+
+      const onClikSelect = () => {
+        const next = { ...item, active: true };
+
+        setCurrent(next);
+      };
+
+      const onClickClose = (event) => {
+        const filter = (current) => current?.id !== itemId;
+        const filtered = data.filter(filter);
+
+        event.stopPropagation();
+        setData(filtered);
+      };
+
+      return (
+        <div key={itemId} className={itemCls} onClick={onClikSelect}>
+          <div className="item-prefix" />
+          <div className="item-content">
+            <ContainerFavicon className="favicon" src={favicon}>
+              <Iconfont className="icon" name="public" />
+            </ContainerFavicon>
+            <div className="title">
+              <span className="text">{ title }</span>
+            </div>
+            <div className="tool" onClick={onClickClose}>
+              <Iconfont className="icon" name="close" />
+            </div>
+          </div>
+          <div className="item-suffix" />
+        </div>
+      );
+    });
+
+    const addItem = (
+      <div className="tabs-item special">
+        <div className="item-content">
+          <div className="tool tool-add" onClick={onClickAdd}>
+            <Iconfont className="icon" name="add" />
+          </div>
+        </div>
+      </div>
+    );
+
+    return (
+      <div className="container-hair">
+        <div className="hair-tabs">
+          { items }
+          { addItem }
+        </div>
+      </div>
+    );
+  };
 
   const renderHead = () => {
     const backCls = classnames({
@@ -193,7 +197,7 @@ const Container = React.forwardRef((props = {}, ref) => {
 
     const searchCls = classnames({
       'head-search': true,
-      failed: uselessSrc === src,
+      failed: src && uselessSrc === src,
     });
 
     return (
@@ -214,6 +218,7 @@ const Container = React.forwardRef((props = {}, ref) => {
             className="search-input"
             type="text"
             spellCheck={false}
+            ref={inputRef}
             onFocus={onFocusSrc}
             onKeyDown={onKeyDownSrc}
             _name="src"
@@ -224,77 +229,67 @@ const Container = React.forwardRef((props = {}, ref) => {
   };
 
   const renderBody = () => {
+    const items = data.map((item = {}) => {
+      const { id: itemId, active } = item;
+
+      const itemCls = classnames({
+        'body-webview': true,
+        active,
+      });
+
+      const find = (got) => got?.id === itemId;
+      const setter = setToArray(setData, find);
+
+      return (
+        <ContainerView
+          key={itemId}
+          id={itemId}
+          data={item}
+          setData={setter}
+          className={itemCls}
+        />
+      );
+    });
+
     return (
       <div className="container-body">
-        <WebView
-          allowpopups="true"
-          className="body-webview"
-          ref={webviewRef}
-          src={src}
-          onChangeSrc={onChangeSrc}
-        />
+        { items }
       </div>
     );
   };
 
-  useEffect(() => {
-    if (document.title === title) {
-      return;
-    }
+  useLayoutEffect(() => {
+    const { current } = inputRef;
 
-    document.title = title;
-  }, [title]);
+    !src && current?.focus?.();
+  });
 
   useEffect(() => {
-    const { current } = webviewRef;
+    const element = document.getElementById(id);
 
-    if (!current) {
-      return;
-    }
+    setInstance(element);
+  }, [data, id]);
 
-    const listener = () => {
-      const src = current.getURL();
+  useEffect(() => {
+    const listener = (event = {}) => {
+      const { detail = {} } = event;
 
-      setData((prev = {}) => ({ ...prev, src }));
+      setCurrent({ active: true, ...detail });
     };
 
-    document.addEventListener('refresh-webview', listener);
-    return () => document.removeEventListener('refresh-webview', listener);
-  }, [webviewRef]);
-
-  useLoopWhenWebViewReady(() => {
-    const { current } = webviewRef;
-
-    if (!current) {
-      return;
-    }
-
-    const title = current.getTitle();
-    const canGoBack = current.canGoBack();
-    const canGoForward = current.canGoForward();
-
-    const object = { title, canGoBack, canGoForward };
-
-    const setter = (prev) => {
-      const every = (key) => object[key] === prev[key];
-
-      const keys = Object.keys(object);
-      const same = keys.every(every);
-
-      return same ? prev : { ...prev, ...object };
-    };
-
-    setData(setter);
-  }, webviewRef);
+    document.addEventListener('create-tab', listener);
+    return () => document.removeEventListener('create-tab', listener);
+  }, [setCurrent]);
 
   return (
     <BabyForm
       ref={ref}
       className={cls}
-      value={data}
-      onChange={setData}
+      value={current}
+      onChange={setCurrent}
       {...others}
     >
+      { renderHair() }
       { renderHead() }
       { renderBody() }
     </BabyForm>
