@@ -152,6 +152,8 @@ const forRegister = () => {
         const detail = { src, httpreferrer };
 
         sendToAllWindows('CreateTab', detail);
+        options?.webContents?.destroy?.();
+
         return options?.webContents;
       };
 

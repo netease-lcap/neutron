@@ -63,10 +63,14 @@ const Container = React.forwardRef((props = {}, ref) => {
     }, 3000);
   })
 
-  const beforeunload = useEventCallback(() => {
+  const beforeunload = useEventCallback((webview = instance) => {
     const code = 'window.electron?.beforeunload?.()';
 
-    return instance?.executeJavaScript(code);
+    try {
+      return webview?.src && webview?.executeJavaScript(code);
+    } catch (error) {
+      console.error(error);      
+    }
   });
 
   const onClickBack = useEventCallback(async () => {
@@ -148,11 +152,15 @@ const Container = React.forwardRef((props = {}, ref) => {
         setCurrent(next);
       };
 
-      const onClickClose = (event) => {
+      const onClickClose = async (event) => {
+        const element = document.getElementById(id);
+
         const filter = (current) => current?.id !== itemId;
         const filtered = data.filter(filter);
 
         event.stopPropagation();
+        await beforeunload(element);
+
         setData(filtered);
       };
 

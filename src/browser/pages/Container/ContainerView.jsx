@@ -135,12 +135,6 @@ const ContainerView = React.forwardRef((props = {}, ref) => {
     setData(setter);
   }, ref);
 
-  useEffect(() => {
-    const code = 'window.electron?.beforeunload?.()';
-
-    return () => ref?.current?.executeJavaScript(code);
-  }, [ref]);
-
   return (
     <WebView
       allowpopups="true"
