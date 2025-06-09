@@ -37,6 +37,7 @@ const Container = React.forwardRef((props = {}, ref) => {
   const [data = [], setData] = useData();
   const [current = {}, setCurrent] = useCurrent(data, setData);
 
+  const [tips = [], setTips] = useState([]);
   const [instance, setInstance] = useState();
   const [uselessSrc, setUselessSrc] = useState('');
 
@@ -51,6 +52,16 @@ const Container = React.forwardRef((props = {}, ref) => {
     'components-container-render': true,
     [className]: !!className,
   });
+
+  const addTip = useEventCallback((current) => {
+    const filter = (item) => item !== current;
+
+    setTips((prev = []) => prev.concat(current));
+
+    setTimeout(() => {
+      setTips((prev = []) => prev.filter(filter));
+    }, 3000);
+  })
 
   const beforeunload = useEventCallback(() => {
     const code = 'window.electron?.beforeunload?.()';
@@ -258,6 +269,34 @@ const Container = React.forwardRef((props = {}, ref) => {
     );
   };
 
+  const renderTips = () => {
+    const items = tips.map((item = {}, index) => {
+      const {
+        type,
+        title = '',
+        description = '',
+      } = item;
+
+      const itemCls = classnames({
+        'tips-item': true,
+        [type]: !!type,
+      });
+
+      return (
+        <div key={index} className={itemCls}>
+          <div className="title">{ title }</div>
+          <div className="description">{ description }</div>
+        </div>
+      );
+    });
+
+    return (
+      <div className="container-tips">
+        { items }
+      </div>
+    );
+  };
+
   useLayoutEffect(() => {
     const { current } = inputRef;
 
@@ -269,6 +308,20 @@ const Container = React.forwardRef((props = {}, ref) => {
 
     setInstance(element);
   }, [data, id]);
+
+  useEffect(() => {
+    if (data.length <= 10) {
+      return;
+    }
+
+    const tip = {
+      type: 'warning',
+      title: '标签页过多',
+      description: '请关闭无用标签页，降低内存消耗。',
+    };
+
+    addTip(tip);
+  }, [data.length])
 
   useEffect(() => {
     const listener = (event = {}) => {
@@ -292,6 +345,7 @@ const Container = React.forwardRef((props = {}, ref) => {
       { renderHair() }
       { renderHead() }
       { renderBody() }
+      { renderTips() }
     </BabyForm>
   );
 });

@@ -399,6 +399,54 @@ $blue4: #3e638a;
   }
 }
 
+@mixin containerTips {
+  .container-tips {
+    position: fixed;
+    top: 100px;
+    right: 0;
+    z-index: 10;
+
+    .tips-item {
+      padding: 5px 8px;
+      width: 220px;
+      color: $black4;
+      background: white;
+      border-radius: 8px 0 0 8px;
+      box-shadow: 0 0 3px rgba(black, .2);
+      animation: slide 2.8s linear both;
+
+      & + .tips-item {
+        margin-top: 10px;
+      }
+
+      &.warning {
+        .title {
+          color: orange;
+        }
+      }
+
+      .title {
+        font-size: 13px;
+        font-weight: bold;
+      }
+
+      .description {
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@keyframes slide {
+  0%, 100% {
+    transform: translate(100%, 0);
+  }
+
+  5%, 95% {
+    transform: translate(0, 0);
+  }
+}
+
 .components-container-render {
   display: flex;
   flex-direction: column;
@@ -412,4 +460,5 @@ $blue4: #3e638a;
   @include containerHair;
   @include containerHead;
   @include containerBody;
+  @include containerTips;
 }
