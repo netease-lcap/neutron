@@ -78,7 +78,7 @@ const Container = React.forwardRef((props = {}, ref) => {
       case 'recover': {
         const last = recorder.pop() || {};
 
-        setCurrent({ active: true, ...last });
+        setCurrent({ ...last, active: true });
       }
     }
   });
