@@ -114,42 +114,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     setCompletions(mapped);
   });
 
-  const onKeyUpSrc = useEventCallback((event = {}) => {
-    const { key = '', which } = event;
-
-    switch (event?.which) {
-      // 回车
-      case 13:
-        break;
-      // 上
-      case 38: {
-        selectByOffset(-1);
-        break;
-      }
-      // 下
-      case 40: {
-        selectByOffset(1);
-        break;
-      }
-      default: {
-        if (key?.length !== 1) {
-          return;
-        }
-
-        const value = event?.target?.value;
-
-        setCompleting(!!value);
-        refreshCompletions();
-        break;
-      }
-    }
-  });
-
-  const onKeyDownSrc = useEventCallback(async (event) => {
-    if (event?.which !== 13) {
-      return;
-    }
-
+  const reload = useEventCallback(async () => {
     setCompleting(false);
 
     const useful = src?.startsWith('http');
@@ -181,6 +146,45 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     same
       ? instance?.reload?.()
       : instance?.loadURL?.(href);
+  });
+
+  const onKeyUpSrc = useEventCallback((event = {}) => {
+    const { key = '', which } = event;
+
+    switch (event?.which) {
+      // 回车
+      case 13:
+        break;
+      // 上
+      case 38: {
+        selectByOffset(-1);
+        break;
+      }
+      // 下
+      case 40: {
+        selectByOffset(1);
+        break;
+      }
+      default: {
+        if (key?.length !== 1) {
+          return;
+        }
+
+        const value = event?.target?.value;
+
+        setCompleting(!!value);
+        refreshCompletions();
+        break;
+      }
+    }
+  });
+
+  const onKeyDownSrc = useEventCallback((event) => {
+    if (event?.which !== 13) {
+      return;
+    }
+
+    return reload();
   });
 
   const renderHeadOperations = () => {
@@ -245,6 +249,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
 
       const onMouseDownItem = (event) => {
         syncToCurrent(item);
+        setTimeout(() => reload());
       };
 
       return (
