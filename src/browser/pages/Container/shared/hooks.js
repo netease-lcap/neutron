@@ -50,8 +50,9 @@ export const useData = () => {
       handler.set(source);
     } else {
       handler.remove();
-      window.close();
     }
+
+    !value?.length && window.close();
   }, [value]);
 
   useEffect(() => {
