@@ -41,8 +41,13 @@ export const useData = () => {
   const [value, setValue] = useState(getter);
 
   useEffect(() => {
-    if (value?.length) {
-      handler.set(value);
+    const filter = (item) => item?.title
+      && item?.src?.startsWith('http');
+
+    const source = value.filter(filter);
+
+    if (source?.length) {
+      handler.set(source);
     } else {
       handler.remove();
       window.close();
