@@ -140,9 +140,9 @@ const forPolyfill = () => {
 };
 
 const forRegister = () => {
-  const language = getLanguage();
   const memoryLimitMb = 16 * 1024;
   const jsFlag = `--expose_gc --max-old-space-size=${memoryLimitMb}`;
+  const language = getLanguage() || 'zh-CN';
 
   app.commandLine.appendSwitch('js-flags', jsFlag);
   app.commandLine.appendSwitch('force_high_performance_gpu');
