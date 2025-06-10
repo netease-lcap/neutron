@@ -13,6 +13,8 @@ import classnames from 'classnames';
 
 import { useFetch } from '@/shared/hooks';
 
+import Iconfont from '@/components/Iconfont';
+
 const toBlobURL = async (href = '') => {
   try {
     const macthed = href?.startsWith?.('http');
@@ -27,17 +29,16 @@ const toBlobURL = async (href = '') => {
   }
 };
 
-const ContainerFavicon = React.forwardRef((props = {}, ref) => {
+const Favicon = React.forwardRef((props = {}, ref) => {
   const {
     className,
-    children,
     src,
     style: propsStyle,
     ...others
   } = props;
 
   const cls = classnames({
-    'components-container-favicon-render': true,
+    'components-favicon-render': true,
     [className]: !!className,
   });
 
@@ -63,9 +64,9 @@ const ContainerFavicon = React.forwardRef((props = {}, ref) => {
 
   return (
     <div ref={ref} className={cls} style={style} {...others}>
-      { children }
+      <Iconfont className="icon" name="public" />
     </div>
   );
 });
 
-export default ContainerFavicon;
+export default Favicon;

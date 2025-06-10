@@ -1,0 +1,328 @@
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useLayoutEffect,
+} from 'react';
+import classnames from 'classnames';
+
+import BabyForm from 'react-baby-form';
+
+import { useEventCallback } from '@/shared/hooks';
+
+import Iconfont from '@/components/Iconfont';
+
+import { isSecureSrc, isAvailableSrc } from '../../shared/tools';
+
+import { useDangerSharedContext } from '../../shared/hooks';
+
+import Favicon from '../Favicon';
+
+const OutboardHead = React.forwardRef((props = {}, ref) => {
+  const { className, ...others } = props;
+
+  const inputRef = useRef(null);
+  const [uselessSrc, setUselessSrc] = useState('');
+  const [selected, setSelected] = useState({});
+  const [completing, setCompleting] = useState(false);
+  const [completions, setCompletions] = useState([]);
+
+  const [memory = {}, setMemory] = useDangerSharedContext('memory');
+  const [instance, setInstance] = useDangerSharedContext('instance');
+  const [current = {}, setCurrent] = useDangerSharedContext('current');
+
+  const beforeunload = useDangerSharedContext('beforeunload');
+
+  const {
+    id,
+    src = '',
+    canGoBack,
+    canGoForward,
+  } = current;
+
+  const cls = classnames({
+    'components-outboard-head-render': true,
+    [className]: !!className,
+  });
+
+  const onClickBack = useEventCallback(async () => {
+    await beforeunload();
+    instance?.goBack?.();
+  }, [instance]);
+
+  const onClickForward = useEventCallback(async() => {
+    await beforeunload();
+    instance?.goForward?.();
+  }, [instance]);
+
+  const onClickRefresh = useEventCallback(async () => {
+    await beforeunload();
+    instance?.reload?.();
+  }, [instance]);
+
+  const onBlurSrc = useEventCallback((event) => {
+    setCompleting(false);
+  });
+
+  const onFocusSrc = useEventCallback((event) => {
+    event.target?.select?.();
+  });
+
+  const syncToCurrent = useEventCallback((source = {}) => {
+    const { id, favicon, title, ...rest } = source;
+
+    setCurrent((prev) => ({ ...prev, ...rest }));
+  });
+
+  const selectByOffset = useEventCallback((offset = 0) => {
+    const findIndex = (item = {}) => item?.src === selected?.src;
+    const index = completions.findIndex(findIndex);
+    const { length } = completions;
+
+    if (!length) {
+      return;
+    }
+
+    const combined = index + offset;
+    const changed = (combined + length) % length;
+    const next = completions[changed];
+
+    next && setSelected(next);
+    next && syncToCurrent(next);
+  });
+
+  const refreshCompletions = useEventCallback(() => {
+    const faker = { title: '跳转地址', src };
+    const merged = { [src]: faker, ...memory };
+
+    const hrefs = Object.keys(merged);
+
+    const map = (key) => merged[key];
+    const filter = (item) => item?.includes?.(src);
+
+    const sort = (a = '', b = '') => {
+      const aIndex = a.indexOf(src);
+      const bIndex = b.indexOf(src);
+
+      return aIndex < bIndex ? -1 : 1;
+    };
+
+    const source = hrefs.filter(filter).sort(sort);
+    const sliced = source.slice(0, 8);
+    const mapped = sliced.map(map);
+
+    setCompletions(mapped);
+  });
+
+  const onKeyUpSrc = useEventCallback((event = {}) => {
+    const { key = '', which } = event;
+
+    switch (event?.which) {
+      // 回车
+      case 13:
+        break;
+      // 上
+      case 38: {
+        selectByOffset(-1);
+        break;
+      }
+      // 下
+      case 40: {
+        selectByOffset(1);
+        break;
+      }
+      default: {
+        if (key?.length !== 1) {
+          return;
+        }
+
+        const value = event?.target?.value;
+
+        setCompleting(!!value);
+        refreshCompletions();
+        break;
+      }
+    }
+  });
+
+  const onKeyDownSrc = useEventCallback(async (event) => {
+    if (event?.which !== 13) {
+      return;
+    }
+
+    setCompleting(false);
+
+    const useful = src?.startsWith('http');
+    const href = useful ? src : `https://${src}`;
+
+    !useful && setCurrent((prev) => ({ ...prev, src: href }));
+
+    const secure = await isSecureSrc(href);
+    const avaliable = await isAvailableSrc(href);
+
+    const uselessSrc = secure ? null : href;
+
+    setUselessSrc(uselessSrc);
+
+    if (!avaliable) {
+      return;
+    }
+
+    if (!instance?.src) {
+      instance.src = href;
+      return;
+    }
+
+    const url = instance.getURL();
+    const same = url === href;
+
+    await beforeunload();
+
+    same
+      ? instance?.reload?.()
+      : instance?.loadURL?.(href);
+  });
+
+  const renderHeadOperations = () => {
+    const backCls = classnames({
+      'operations-item': true,
+      disabled: !canGoBack,
+    });
+
+    const forwardCls = classnames({
+      'operations-item': true,
+      disabled: !canGoForward,
+    });
+
+    return (
+      <div className="head-operations">
+        <div className={backCls} onClick={onClickBack}>
+          <Iconfont className="icon" name="arrow-back" />
+        </div>
+        <div className={forwardCls} onClick={onClickForward}>
+          <Iconfont className="icon" name="arrow-forward" />
+        </div>
+        <div className="operations-item" onClick={onClickRefresh}>
+          <Iconfont className="icon" name="refresh" />
+        </div>
+      </div>
+    );
+  };
+
+  const renderHeadSearchInput = () => {
+    return (
+      <input
+        className="search-input"
+        type="text"
+        spellCheck={false}
+        ref={inputRef}
+        onBlur={onBlurSrc}
+        onFocus={onFocusSrc}
+        onKeyUp={onKeyUpSrc}
+        onKeyDown={onKeyDownSrc}
+        _name="src"
+      />
+    );
+  };
+
+  const renderHeadSearchCompletions = () => {
+    if (!completing || !src) {
+      return null;
+    }
+
+    if (!completions?.length) {
+      return null;
+    }
+
+    const items = completions.map((item = {}, index) => {
+      const { id, ...rest } = item;
+      const { src, title, favicon } = rest;
+
+      const itemCls = classnames({
+        'completions-item': true,
+        active: selected?.src === src,
+      });
+
+      const onMouseDownItem = (event) => {
+        syncToCurrent(item);
+      };
+
+      return (
+        <div key={index} className={itemCls} onMouseDownCapture={onMouseDownItem}>
+          <Favicon className="favicon" src={favicon} />
+          <div className="title">{ title }</div>
+          <div className="src">{ src }</div>
+        </div>
+      );
+    });
+
+    return (
+      <div className="search-completions">
+        { items }
+      </div>
+    );
+  };
+
+  const renderHeadSearch = () => {
+    const searchCls = classnames({
+      'head-search': true,
+      failed: src && uselessSrc === src,
+      completing,
+    });
+
+    return (
+      <div className={searchCls}>
+        { renderHeadSearchInput() }
+        { renderHeadSearchCompletions() }
+      </div>
+    );
+  };
+
+  useLayoutEffect(() => {
+    const { current } = inputRef;
+
+    !src && current?.focus?.();
+  });
+
+  useEffect(() => {
+    setCompleting(false);
+  }, [id]);
+
+  useEffect(() => {
+    if (completing) {
+      return;
+    }
+
+    setSelected();
+    setCompletions([]);
+  }, [completing, setSelected]);
+
+  useEffect(() => {
+    if (!completing) {
+      return;
+    }
+
+    setSelected((prev) => {
+      const some = (item) => item.src === prev?.src;
+      const included = completions.some(some);
+      const [first = {}] = completions;
+
+      return included ? prev : first;
+    });
+  }, [completing, completions, setSelected]);
+
+  return (
+    <BabyForm
+      ref={ref}
+      className={cls}
+      value={current}
+      onChange={setCurrent}
+      {...others}
+    >
+      { renderHeadOperations() }
+      { renderHeadSearch() }
+    </BabyForm>
+  );
+});
+
+export default OutboardHead;

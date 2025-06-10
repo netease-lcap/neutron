@@ -1,0 +1,232 @@
+@use '../../shared/style';
+
+$hairHeight: 35px;
+$tabGap: 6px;
+$tabRadius: 12px;
+$tabContentRadius: 10px;
+
+@at-root {
+  body[data-platform="darwin"] {
+    .components-outboard-hair-render {
+      padding: 6px 0 0 92px;
+      height: $hairHeight;
+    }
+  }
+
+  body[data-platform="win32"] {
+    .components-outboard-hair-render {
+      padding: 6px 65px 0 6px;
+      height: $hairHeight;
+    }
+  }
+}
+
+@mixin hairTabs {
+  .hair-tabs {
+    --tab-radius: 12px;
+
+    display: flex;
+    height: 100%;
+    gap: $tabGap;
+
+    .tabs-item {
+      flex: 1;
+      display: inline-block;
+      position: relative;
+      max-width: 235px;
+      font-size: 12px;
+      app-region: none;
+
+      &.special {
+        flex: none;
+      }
+
+      &.active {
+        background: style.$black3;
+        border-radius: $tabRadius $tabRadius 0 0;
+
+        .item-content {
+          transition: 0s;
+        }
+
+        .item-prefix,
+        .item-suffix {
+          position: absolute;
+          width: $tabRadius;
+          height: $tabRadius;
+          bottom: 0;
+          overflow: hidden;
+          pointer-events: none;
+
+          &:before {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            bottom: 0;
+            width: $tabRadius * 2;
+            height: $tabRadius * 2;
+            border-radius: 50%;
+            box-shadow: 0 0 0 5px style.$black3;
+          }
+        }
+
+        .item-prefix {
+          right: 100%;
+
+          &:before {
+            right: 0;
+          }
+        }
+
+        .item-suffix {
+          left: 100%;
+
+          &:before {
+            left: 0;
+          }
+        }
+      }
+
+      &:not(.active) {
+        .item-prefix,
+        .item-suffix {
+          opacity: 0;
+        }
+      }
+
+      &:not(.active) {
+        & + .tabs-item:not(.active) {
+          &:before {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            left: $tabGap * -0.5;
+            top: 7px;
+            height: 20px;
+            width: 2px;
+            height: 15px;
+            background: style.$black3;
+          }
+        }
+
+        &:hover {
+          &,
+          & + *:not(.active) {
+            &:before {
+              opacity: 0;
+            }
+          }
+        }
+      }
+
+      &:not(.active, .special) {
+        .item-content {
+          &:hover {
+            background-color: style.$blue;
+          }
+        }
+      }
+
+      .item-content {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px 5px 5px;
+        height: 20px;
+        border-radius: $tabContentRadius;
+        transition: .2s;
+
+        .favicon {
+          height: 16px;
+          line-height: 1;
+          background-size: contain;
+          background-repeat: no-repeat;
+          background-position: center;
+
+          &[style] {
+            .icon {
+              opacity: 0;
+            }
+          }
+
+          .icon {
+            font-size: 18px;
+            font-weight: bold;
+            opacity: .8;
+            transform: translate(0, -0.5px);
+          }
+        }
+
+        .title {
+          flex: 1;
+          position: relative;
+
+          .text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            transform: translate(0, -50%);
+
+            @extend %ellipsis;
+
+            &:empty {
+              &:before {
+                content: '新标签页';
+              }
+            }
+          }
+        }
+
+        .tool {
+          position: relative;
+          line-height: 1;
+
+          &.tool-add {
+            .icon {
+              margin-top: 1px;
+              font-size: 15px;
+            }
+
+            &:hover {
+              &:before {
+                opacity: 1;
+                transition: .2s;
+              }
+            }
+
+            &:before {
+              content: '';
+              display: inline-block;
+              position: absolute;
+              width: 28px;
+              height: 28px;
+              opacity: 0;
+              background: style.$blue;
+              border-radius: 50%;
+
+              @extend %percenter;
+            }
+          }
+
+          .icon {
+            margin-top: 2px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            opacity: .9;
+            transform: scale(.9);
+          }
+        }
+      }
+    }
+  }
+}
+
+.components-outboard-hair-render {
+  color: style.$black5;
+  background: style.$black;
+  user-select: none;
+  app-region: drag;
+
+  @include hairTabs;
+}

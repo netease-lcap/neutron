@@ -1,0 +1,55 @@
+@use '../../shared/style';
+
+@keyframes slide {
+  0%, 100% {
+    transform: translate(100%, 0);
+  }
+
+  5%, 95% {
+    transform: translate(0, 0);
+  }
+}
+
+@mixin tipsItem {
+  .tips-item {
+    padding: 8px 12px;
+    width: 220px;
+    color: rgba(black, .7);
+    border-radius: 8px 0 0 8px;
+    border: 1px solid style.$black4;
+    box-shadow: 0 0 3px rgba(black, .2);
+    background: style.$black6;
+    animation: slide 2.8s linear both;
+
+    & + .tips-item {
+      margin-top: 10px;
+    }
+
+    &.warning {
+      background: style.$orange2;
+      border: 1px solid style.$orange;
+    }
+
+    .title {
+      font-size: 14px;
+
+      & + * {
+        margin-top: 6px;
+      }
+    }
+
+    .description {
+      font-size: 12px;
+      opacity: .8;
+    }
+  }
+}
+
+.components-outboard-tips-render {
+  position: fixed;
+  top: 100px;
+  right: 0;
+  z-index: 10;
+
+  @include tipsItem;
+}

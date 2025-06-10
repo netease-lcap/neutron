@@ -1,0 +1,170 @@
+@use '../../shared/style';
+
+@mixin headOperations {
+  .head-operations {
+    display: flex;
+    gap: 2px;
+
+    .operations-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      transition: .2s;
+
+      &:hover {
+        background-color: rgba(white, .1);
+      }
+
+      &:active {
+        background-color: rgba(white, .3);
+      }
+
+      &.active {
+        &:hover {
+          background-color: style.$blue;
+        }
+
+        .icon {
+          color: style.$blue4;
+        }
+      }
+
+      &.disabled {
+        pointer-events: none;
+
+        .icon {
+          color: style.$black4;
+        }
+      }
+
+      .icon {
+        color: style.$black5;
+        font-size: 20px;
+        font-weight: 300;
+      }
+    }
+  }
+}
+
+@mixin headSearch {
+  .head-search {
+    display: flex;
+    position: relative;
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 50px;
+    background: style.$black2;
+    border: 2px solid transparent;
+
+    &:focus-within {
+      background: style.$black3;
+      border: 2px solid style.$blue3;
+    }
+
+    &.failed {
+      border: 2px solid style.$red;
+    }
+
+    &.completing {
+    }
+
+    .search-input {
+      flex: 1;
+      color: style.$black5;
+      font-size: 14px;
+      font-weight: 300;
+      border: none;
+      outline: none;
+      background: transparent;
+
+      &::selection {
+        color: style.$black6;
+        background-color: style.$blue2;
+      }
+    }
+
+    .search-completions {
+      position: absolute;
+      margin-top: 10px;
+      padding: 10px 20px 10px 0;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      border-radius: 15px;
+      background: style.$black3;
+      box-shadow: 0 0 5px rgba(black, .5);
+
+      .completions-item {
+        display: flex;
+        position: relative;
+        padding: 10px 15px;
+        align-items: center;
+        color: style.$black5;
+        font-size: 14px;
+        user-select: none;
+
+        &.active,
+        &:hover {
+          background: rgba(white, .15);
+          border-radius: 0 50px 50px 0;
+        }
+
+        &.active {
+          &:before {
+            content: '';
+            position: absolute;
+            display: inline-block;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: style.$blue3;
+            border-radius: 0 6px 6px 0px;
+          }
+        }
+
+        .favicon {
+          & + * {
+            margin-left: 15px;
+          }
+        }
+
+        .title,
+        .src {
+          @extend %ellipsis;
+        }
+
+        .title {
+          max-width: 50%;
+        }
+
+        .src {
+          color: style.$blue5;
+
+          &:before {
+            content: '-';
+            padding: 0 5px;
+            font-size: 12px;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+  }
+}
+
+.components-outboard-head-render {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 15px 8px 15px;
+  background: style.$black3;
+  border-bottom: 1px solid rgba(white, .05);
+
+  @include headOperations;
+  @include headSearch;
+}

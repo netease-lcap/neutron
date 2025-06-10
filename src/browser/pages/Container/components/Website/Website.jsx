@@ -32,7 +32,7 @@ const getFavicon = () => {
   return url.href;
 };
 
-const ContainerView = React.forwardRef((props = {}, ref) => {
+const Website = React.forwardRef((props = {}, ref) => {
   ref = ref || useRef(null);
 
   const {
@@ -49,7 +49,7 @@ const ContainerView = React.forwardRef((props = {}, ref) => {
   } = data;
 
   const cls = classnames({
-    'components-container-view-render': true,
+    'components-website-render': true,
     [className]: !!className,
   });
 
@@ -148,4 +148,4 @@ const ContainerView = React.forwardRef((props = {}, ref) => {
   );
 });
 
-export default ContainerView;
+export default Website;

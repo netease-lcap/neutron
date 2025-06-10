@@ -1,0 +1,31 @@
+$black: #262626;
+$black2: #282828;
+$black3: #3d3d3d;
+$black4: #6c6c6c;
+$black5: #c6c6c6;
+$black6: #d9dadc;
+$black7: #f4f4f4;
+
+$red: #dc362e;
+
+$orange: #faad14;
+$orange2: #fffbe6;
+
+$blue: #004a77;
+$blue2: #3e638a;
+$blue3: #6aa4ff;
+$blue4: #7fcfff;
+$blue5: #a4c2f7;
+
+%ellipsis {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+%percenter {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+}

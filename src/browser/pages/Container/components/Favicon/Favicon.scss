@@ -1,0 +1,25 @@
+@use '../../shared/style';
+
+.components-favicon-render {
+  --favicon-height: 16px;
+  --favicon-icon-size: 18px;
+
+  height: var(--favicon-height);
+  line-height: 1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  &[style] {
+    .icon {
+      opacity: 0;
+    }
+  }
+
+  .icon {
+    font-size: var(--favicon-icon-size);
+    font-weight: bold;
+    opacity: .8;
+    transform: translate(0, -0.5px);
+  }
+}

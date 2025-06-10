@@ -90,3 +90,17 @@ export const setToArray = (setArray = () => {}, find = () => {}) => (next) => {
 
   setArray(setter);
 };
+
+export const recorder = (() => {
+  const records = [];
+
+  const add = (current = {}) => {
+    current?.src && records.push(current);
+  };
+
+  const pop = (current = {}) => {
+    return records.pop();
+  };
+
+  return { add, pop };
+})();
