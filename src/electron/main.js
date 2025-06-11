@@ -208,11 +208,16 @@ const forRegisterWhenReady = async () => {
 
   ipcMain.handle('fetch', (event, ...args) => fetch(...args));
 
-  ipcMain.handle('fetchBuffer', async (event, ...args) => {
-    const fetched = await fetch(...args);
-    const blob = await fetched.blob();
+  ipcMain.handle('fetchBufferAndType', async (event, ...args) => {
+    const attribute = 'content-type';
 
-    return blob.arrayBuffer();
+    const fetched = await fetch(...args);
+    const type = fetched?.headers?.get?.(attribute);
+
+    const blob = await fetched.blob();
+    const buffer = await blob.arrayBuffer();
+
+    return { type, buffer };
   });
   
   ipcMain.handle('execCommands', (event, ...args) => execCommands(...args));

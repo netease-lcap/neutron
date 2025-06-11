@@ -17,17 +17,16 @@ import Iconfont from '@/components/Iconfont';
 
 import { isUsefulSrc } from '../../shared/tools';
 
-const toBlobURL = async (href = '') => {
+const toBlobURL = async (src = '') => {
   try {
-    const useful = isUsefulSrc(href);
+    const useful = isUsefulSrc(src);
 
-    const buffer = useful && await electron?.fetchBuffer(href);
-    const blob = buffer && new Blob([buffer]);
-
-    return blob ? URL.createObjectURL(blob) : href;
+    return useful
+      ? electron?.createObjectURLByUrl?.(src)
+      : src;
   } catch (error) {
     console.error(error);
-    return href;
+    return src;
   }
 };
 

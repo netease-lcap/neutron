@@ -78,6 +78,18 @@ const beforeunload = (() => {
   };
 })();
 
+const fetchBufferAndType = ipcInvokeWithChannel('fetchBufferAndType');
+
+const createObjectURLByUrl = async (url = '') => {
+  const fetched = await fetchBufferAndType(url) || {};
+  const { buffer, type } = fetched;
+
+  const options = { type };
+  const blob = new Blob([buffer], options);
+
+  return URL.createObjectURL(blob, options);
+};
+
 (() => {
   const { performance: { memory = {} } = {} } = window;
   const { usedJSHeapSize = 0 } = memory;
@@ -159,6 +171,8 @@ ipcRenderer.addListener('StoreExecute', (event, beacon, ...params) => {
 contextBridge.exposeInMainWorld('electron', {
   createWorker,
   beforeunload,
+  fetchBufferAndType,
+  createObjectURLByUrl,
   invoke: ipcInvokeWithChannel,
   platform: () => process.platform,
   node: () => process.versions.node,
@@ -166,6 +180,5 @@ contextBridge.exposeInMainWorld('electron', {
   electron: () => process.versions.electron,
   log: (...args) => console.log(...args),
   fetch: ipcInvokeWithChannel('fetch'),
-  fetchBuffer: ipcInvokeWithChannel('fetchBuffer'),
   execCommands: ipcInvokeWithChannel('execCommands'),
 });
