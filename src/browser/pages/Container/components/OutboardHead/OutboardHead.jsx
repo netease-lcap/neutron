@@ -12,7 +12,11 @@ import { useEventCallback } from '@/shared/hooks';
 
 import Iconfont from '@/components/Iconfont';
 
-import { isSecureSrc, isAvailableSrc } from '../../shared/tools';
+import {
+  isUsefulSrc,
+  isSecureSrc,
+  isAvailableSrc,
+} from '../../shared/tools';
 
 import { useDangerSharedContext } from '../../shared/hooks';
 
@@ -117,7 +121,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   const reload = useEventCallback(async () => {
     setCompleting(false);
 
-    const useful = src?.startsWith('http');
+    const useful = isUsefulSrc(src);
     const href = useful ? src : `https://${src}`;
 
     !useful && setCurrent((prev) => ({ ...prev, src: href }));

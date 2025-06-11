@@ -46,6 +46,14 @@ export const isAvailableSrc = (src = '') => {
   return isSecureSrc(httpSrc, options);
 };
 
+export const isUsefulSrc = (src = '') => src?.startsWith?.('http');
+
+export const isUsefulCurrent = (current = {}) => {
+  const { src, title, favicon } = current;
+
+  return title && favicon && isUsefulSrc(src);
+};
+
 export const getKey = () => `${Date.now()}`;
 
 export const setToArray = (setArray = () => {}, find = () => {}) => (next) => {

@@ -15,11 +15,13 @@ import { useFetch } from '@/shared/hooks';
 
 import Iconfont from '@/components/Iconfont';
 
+import { isUsefulSrc } from '../../shared/tools';
+
 const toBlobURL = async (href = '') => {
   try {
-    const macthed = href?.startsWith?.('http');
+    const useful = isUsefulSrc(href);
 
-    const buffer = macthed && await electron?.fetchBuffer(href);
+    const buffer = useful && await electron?.fetchBuffer(href);
     const blob = buffer && new Blob([buffer]);
 
     return blob ? URL.createObjectURL(blob) : href;

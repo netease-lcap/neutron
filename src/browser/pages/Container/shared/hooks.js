@@ -17,6 +17,7 @@ import { useEventCallback } from '@/shared/hooks';
 import {
   getKey,
   createHandler,
+  isUsefulCurrent,
   setToArray,
 } from './tools';
 
@@ -41,10 +42,7 @@ export const useData = () => {
   const [value, setValue] = useState(getter);
 
   useEffect(() => {
-    const filter = (item) => item?.title
-      && item?.src?.startsWith('http');
-
-    const source = value.filter(filter);
+    const source = value.filter(isUsefulCurrent);
 
     if (source?.length) {
       handler.set(source);

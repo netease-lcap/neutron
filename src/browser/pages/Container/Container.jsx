@@ -3,7 +3,11 @@ import classnames from 'classnames';
 
 import { useEventCallback } from '@/shared/hooks';
 
-import { recorder } from './shared/tools';
+import {
+  recorder,
+  isUsefulSrc,
+  isUsefulCurrent,
+} from './shared/tools';
 
 import {
   useData,
@@ -53,7 +57,7 @@ const Container = React.forwardRef((props = {}, ref) => {
     const element = document.getElementById(sourceId);
     const filter = (item) => item?.id !== sourceId;
     const filtered = data.filter(filter);
-    const useful = src?.startsWith?.('http');
+    const useful = isUsefulSrc(src);
 
     await beforeunload(element);
     
@@ -101,10 +105,6 @@ const Container = React.forwardRef((props = {}, ref) => {
 
   useEffect(() => {
     const setter = (source = {}) => {
-      const filter = (item) => item?.title
-        && item?.favicon
-        && item?.src?.startsWith('http');
-
       const reduce = (result = {}, item = {}) => {
         const { src: itemSrc } = item;
         const { [itemSrc]: saved } = result;
@@ -116,7 +116,7 @@ const Container = React.forwardRef((props = {}, ref) => {
       };
 
       const reduced = data
-        .filter(filter)
+        .filter(isUsefulCurrent)
         .reduce(reduce, source);
 
       return reduced;
