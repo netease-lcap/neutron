@@ -80,6 +80,8 @@ const forgeConfig = {
     {
       name: '@electron-forge/publisher-github',
       config: {
+        force: true,
+        draft: false,
         prerelease: true,
         repository: { owner: 'netease-lcap', name: 'neutron' },
       },
