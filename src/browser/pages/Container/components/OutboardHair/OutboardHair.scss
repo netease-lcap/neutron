@@ -137,6 +137,7 @@ $tabContentRadius: 10px;
         transition: .2s;
 
         .favicon {
+          position: relative;
           height: 16px;
           line-height: 1;
           background-size: contain;
@@ -181,30 +182,38 @@ $tabContentRadius: 10px;
           position: relative;
           line-height: 1;
 
+          &:hover {
+            &:before {
+              opacity: 1;
+              transition: .2s;
+            }
+          }
+
+          &:before {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            margin-top: 1px;
+            width: 16px;
+            height: 16px;
+            opacity: 0;
+            background: rgba(white, .15);
+            border-radius: 50%;
+
+            @extend %percenter;
+          }
+
           &.tool-add {
+            &:before {
+              margin-top: 0px;
+              width: 28px;
+              height: 28px;
+              background: style.$blue;
+            }
+
             .icon {
               margin-top: 1px;
               font-size: 15px;
-            }
-
-            &:hover {
-              &:before {
-                opacity: 1;
-                transition: .2s;
-              }
-            }
-
-            &:before {
-              content: '';
-              display: inline-block;
-              position: absolute;
-              width: 28px;
-              height: 28px;
-              opacity: 0;
-              background: style.$blue;
-              border-radius: 50%;
-
-              @extend %percenter;
             }
           }
 

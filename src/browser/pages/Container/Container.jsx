@@ -83,6 +83,7 @@ const Container = React.forwardRef((props = {}, ref) => {
         const last = recorder.pop() || {};
 
         setCurrent({ ...last, active: true });
+        break;
       }
     }
   });

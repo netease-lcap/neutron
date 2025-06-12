@@ -6,9 +6,10 @@ import React, {
 } from 'react';
 import classnames from 'classnames';
 
-import BabyForm from 'react-baby-form';
-
-import { useEventCallback } from '@/shared/hooks';
+import {
+  useEventCallback,
+  useDebounceCallback,
+} from '@/shared/hooks';
 
 import Iconfont from '@/components/Iconfont';
 
@@ -72,6 +73,12 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     event.target?.select?.();
   });
 
+  const onChangeSrc = useEventCallback((event) => {
+    const { target: { value = '' } = {} } = event;
+
+    setCurrent((prev) => ({ ...prev, src: value }));
+  });
+
   const syncToCurrent = useEventCallback((source = {}) => {
     const { id, favicon, title, ...rest } = source;
 
@@ -96,7 +103,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   });
 
   const refreshCompletions = useEventCallback(() => {
-    const faker = { title: '跳转地址', src };
+    const faker = { src, title: '跳转地址' };
     const merged = { [src]: faker, ...memory };
 
     const hrefs = Object.keys(merged);
@@ -152,10 +159,19 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
       : instance?.loadURL?.(href);
   });
 
-  const onKeyUpSrc = useEventCallback((event = {}) => {
-    const { key = '', which } = event;
+  const triggerByInput = useDebounceCallback((value = '') => {
+    setCompleting(!!value);
+    refreshCompletions();
+  });
 
-    switch (event?.which) {
+  const onKeyUpSrc = useEventCallback((event = {}) => {
+    const {
+      which,
+      key = '',
+      target: { value } = {},
+    } = event;
+
+    switch (which) {
       // 回车
       case 13:
         break;
@@ -174,10 +190,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
           return;
         }
 
-        const value = event?.target?.value;
-
-        setCompleting(!!value);
-        refreshCompletions();
+        triggerByInput(value);
         break;
       }
     }
@@ -223,12 +236,13 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
         className="search-input"
         type="text"
         spellCheck={false}
+        value={src}
         ref={inputRef}
         onBlur={onBlurSrc}
         onFocus={onFocusSrc}
         onKeyUp={onKeyUpSrc}
         onKeyDown={onKeyDownSrc}
-        _name="src"
+        onChange={onChangeSrc}
       />
     );
   };
@@ -257,7 +271,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
       };
 
       return (
-        <div key={index} className={itemCls} onMouseDownCapture={onMouseDownItem}>
+        <div key={src} className={itemCls} onMouseDownCapture={onMouseDownItem}>
           <Favicon className="favicon" src={favicon} />
           <div className="title">{ title }</div>
           <div className="src">{ src }</div>
@@ -321,16 +335,10 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   }, [completing, completions, setSelected]);
 
   return (
-    <BabyForm
-      ref={ref}
-      className={cls}
-      value={current}
-      onChange={setCurrent}
-      {...others}
-    >
+    <div ref={ref} className={cls} {...others}>
       { renderHeadOperations() }
       { renderHeadSearch() }
-    </BabyForm>
+    </div>
   );
 });
 
