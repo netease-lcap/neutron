@@ -42,10 +42,10 @@ const forgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    // {
-    //   name: '@electron-forge/maker-zip',
-    //   platforms: ['darwin'],
-    // },
+    {
+      name: '@electron-forge/maker-zip',
+      platforms: ['darwin'],
+    },
     {
       name: '@electron-forge/maker-deb',
       config: {},
@@ -83,6 +83,7 @@ const forgeConfig = {
         force: true,
         draft: false,
         prerelease: true,
+        generateReleaseNotes: true,
         repository: { owner: 'netease-lcap', name: 'neutron' },
       },
     },

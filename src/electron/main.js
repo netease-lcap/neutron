@@ -12,7 +12,7 @@ const {
 } = require('electron');
 
 const squirrel = require('electron-squirrel-startup');
-const { updateElectronApp } = require('update-electron-app');
+const { updateElectronApp, makeUserNotifier } = require('update-electron-app');
 
 const {
   isFunction,
@@ -129,7 +129,17 @@ const forPolyfill = () => {
     return;
   }
 
-  updateElectronApp();
+  const onNotifyUser = makeUserNotifier({
+    title: '软件更新',
+    detail: '最新版本软件已下载，请重启后完成应用升级。',
+    restartButtonText: '重启应用',
+    laterButtonText: '稍后提醒',
+  });
+
+  updateElectronApp({
+    onNotifyUser,
+    updateInterval: '24 hour',
+  });
 
   crashReporter.start({
     companyName: 'NetEase (Hangzhou) Network Co',
