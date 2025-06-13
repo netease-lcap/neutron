@@ -45,7 +45,9 @@ const Container = React.forwardRef((props = {}, ref) => {
     const code = 'window.electron?.beforeunload?.()';
 
     try {
-      return webview?.src && webview?.executeJavaScript(code);
+      const useful = webview?.src && webview?.getURL?.();
+
+      return useful && webview?.executeJavaScript(code);
     } catch (error) {
       console.error(error);      
     }
