@@ -1,3 +1,4 @@
+const os = require('os');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const {
@@ -217,6 +218,10 @@ const forRegisterWhenReady = async () => {
   });
 
   ipcMain.handle('fetch', (event, ...args) => fetch(...args));
+
+  ipcMain.handle('freemem', (event, ...args) => os.freemem(...args));
+
+  ipcMain.handle('totalmem', (event, ...args) => os.totalmem(...args));
 
   ipcMain.handle('fetchBufferAndType', async (event, ...args) => {
     const attribute = 'content-type';

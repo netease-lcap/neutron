@@ -15,7 +15,7 @@ $tabContentRadius: 10px;
 
   body[data-platform="win32"] {
     .components-outboard-hair-render {
-      padding: 6px 140px 0 6px;
+      padding: 6px 160px 0 6px;
       height: $hairHeight;
     }
   }
@@ -175,6 +175,29 @@ $tabContentRadius: 10px;
                 content: '新标签页';
               }
             }
+          }
+        }
+
+        .size {
+          margin-top: 2px;
+          padding: 3px 4px;
+          color: white;
+          line-height: 1;
+          font-size: 12px;
+          font-weight: bold;
+          text-shadow: 1px 1px rgba(black, .05);
+          border-radius: 50px;
+          
+          &.warning {
+            background-color: style.$orange;
+          }
+
+          &.danger {
+            background-color: style.$red;
+          }
+
+          &:after {
+            content: 'GB';
           }
         }
 

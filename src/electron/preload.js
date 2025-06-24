@@ -180,5 +180,7 @@ contextBridge.exposeInMainWorld('electron', {
   electron: () => process.versions.electron,
   log: (...args) => console.log(...args),
   fetch: ipcInvokeWithChannel('fetch'),
+  freemem: ipcInvokeWithChannel('freemem'),
+  totalmem: ipcInvokeWithChannel('totalmem'),
   execCommands: ipcInvokeWithChannel('execCommands'),
 });

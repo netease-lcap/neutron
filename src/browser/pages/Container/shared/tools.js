@@ -54,6 +54,12 @@ export const isUsefulCurrent = (current = {}) => {
   return title && favicon && isUsefulSrc(src);
 };
 
+export const getUsefulCurrent = (current = {}) => {
+  const { usedJSHeapSize, ...others } = current;
+
+  return others;
+};
+
 export const getKey = () => `${Date.now()}`;
 
 export const setToArray = (setArray = () => {}, find = () => {}) => (next) => {
@@ -103,7 +109,13 @@ export const recorder = (() => {
   const records = [];
 
   const add = (current = {}) => {
-    current?.src && records.push(current);
+    if (!current?.src) {
+      return;
+    }
+
+    const got = getUsefulCurrent(current);
+
+    records.push(got);
   };
 
   const pop = (current = {}) => {
@@ -112,3 +124,19 @@ export const recorder = (() => {
 
   return { add, pop };
 })();
+
+const ONE_KB = 1024;
+const ONE_MB = 1024 * ONE_KB;
+const ONE_GB = 1024 * ONE_MB;
+
+export const toFloat = (number = 0, digits = 2) => {
+  const float = number.toFixed(digits);
+
+  return Number(float);
+};
+
+export const toGB = (size = 0) => {
+  const number = size / ONE_GB;
+
+  return toFloat(number);
+};

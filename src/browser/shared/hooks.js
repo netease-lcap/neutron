@@ -72,6 +72,18 @@ export const useLoopWhenWebViewReady = (callback, ref) => {
   }, [ref, statbleCallback]);
 };
 
+export const useLoopEffect = (callback, time) => {
+  const statbleCallback = useEventCallback(
+    (...args) => callback?.(...args),
+  );
+
+  useEffect(() => {
+    const effect = loop(statbleCallback, time);
+
+    return () => effect && effect();
+  }, [statbleCallback, time]);
+};
+
 export const useFetch = (callback, dependencies = []) => {
   const [state, setState] = useState();
   const fetcher = useEventCallback(callback);

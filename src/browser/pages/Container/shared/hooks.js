@@ -18,6 +18,7 @@ import {
   getKey,
   createHandler,
   isUsefulCurrent,
+  getUsefulCurrent,
   setToArray,
 } from './tools';
 
@@ -42,7 +43,9 @@ export const useData = () => {
   const [value, setValue] = useState(getter);
 
   useEffect(() => {
-    const source = value.filter(isUsefulCurrent);
+    const source = value
+      .filter(isUsefulCurrent)
+      .map(getUsefulCurrent);
 
     if (source?.length) {
       handler.set(source);
@@ -94,8 +97,10 @@ export const useMemory = () => {
   const [value, setValue] = useState(getter);
 
   useEffect(() => {
-    const values = Object.values(value);
-    const sliced = values.length > 50
+    const values = Object.values(value)
+    const mapped = values.map(getUsefulCurrent);
+
+    const sliced = mapped.length > 50
       ? values.slice(-50)
       : values;
 

@@ -12,6 +12,8 @@ import React, {
 } from 'react';
 import classnames from 'classnames';
 
+import { delay } from '@/shared/tools';
+
 import {
   useEventCallback,
   useLoopWhenWebViewReady,
@@ -52,6 +54,8 @@ const Website = React.forwardRef((props = {}, ref) => {
     'components-website-render': true,
     [className]: !!className,
   });
+
+  const [usedJSHeapSize, setUsedJSHeapSize] = useState(0);
 
   const onChangeSrc = useEventCallback((src) => {
     setData((prev) => ({ ...prev, src }));
@@ -110,6 +114,27 @@ const Website = React.forwardRef((props = {}, ref) => {
     return () => current.removeEventListener('page-favicon-updated', listener);
   }, [ref]);
 
+  useLoopWhenWebViewReady(async () => {
+    const { current } = ref;
+
+    if (!current) {
+      return;
+    }
+
+    await delay(1000 * 5);
+
+    const code = `new Promise((resolve) => {
+      const callback = () => resolve(performance.memory.usedJSHeapSize);
+      const timeout = requestIdleCallback || setTimeout;
+
+      timeout(callback);
+    })`;
+
+    const size = await current?.executeJavaScript?.(code) || 0;
+
+    setUsedJSHeapSize(size);
+  }, ref);
+
   useLoopWhenWebViewReady(() => {
     const { current } = ref;
 
@@ -121,7 +146,12 @@ const Website = React.forwardRef((props = {}, ref) => {
     const canGoBack = current.canGoBack();
     const canGoForward = current.canGoForward();
 
-    const object = { title, canGoBack, canGoForward };
+    const object = {
+      title,
+      canGoBack,
+      canGoForward,
+      usedJSHeapSize,
+    };
 
     const setter = (prev) => {
       const every = (key) => object[key] === prev[key];

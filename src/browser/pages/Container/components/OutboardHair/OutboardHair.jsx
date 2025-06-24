@@ -5,6 +5,8 @@ import { useEventCallback } from '@/shared/hooks';
 
 import Iconfont from '@/components/Iconfont';
 
+import { toGB } from '../../shared/tools';
+
 import { useDangerSharedContext } from '../../shared/hooks';
 
 import Favicon from '../Favicon';
@@ -25,6 +27,31 @@ const OutboardHair = React.forwardRef((props = {}, ref) => {
   const onClickAdd = useEventCallback(() => {
     setCurrent({ active: true });
   });
+
+  const renderItemSizeNode = (item = {}) => {
+    const { usedJSHeapSize = 0 } = item;
+
+    const size = toGB(usedJSHeapSize);
+
+    if (size < 1) {
+      return null;
+    }
+
+    const warning = size < 2;
+    const danger = size >= 2;
+
+    const sizeCls = classnames({
+      size: true,
+      danger,
+      warning,
+    });
+
+    return (
+      <span className={sizeCls}>
+        { size }
+      </span>
+    );
+  };
 
   const items = data.map((item = {}) => {
     const {
@@ -59,6 +86,7 @@ const OutboardHair = React.forwardRef((props = {}, ref) => {
           <div className="title">
             <span className="text">{ title }</span>
           </div>
+          { renderItemSizeNode(item) }
           <div className="tool" onClick={onClickClose}>
             <Iconfont className="icon" name="close" />
           </div>
