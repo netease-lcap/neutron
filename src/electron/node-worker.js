@@ -59,7 +59,7 @@ function mainThread() {
   class Worker2 extends EventTarget {
     constructor(url$1, options) {
       super();
-      let { name, type } = options || {};
+      let { name, type, inspect } = options || {};
       url$1 += "";
       let mod;
       /^data:/.test(url$1) ? mod = url$1 : mod = url.fileURLToPath(new url.URL(url$1, baseUrl));
@@ -67,7 +67,7 @@ function mainThread() {
         url.fileURLToPath(importMetaUrl),
         {
           env: process.env,
-          workerData: { mod, name, type },
+          workerData: { mod, name, type, inspect },
           resourceLimits: { maxOldGenerationSizeMb: 32 * 1024 },
         }
       );
@@ -93,11 +93,12 @@ function mainThread() {
   return Worker2.prototype.onmessage = Worker2.prototype.onerror = Worker2.prototype.onclose = null, Worker2;
 }
 function workerThread() {
-  inspector.open();
-
   if (typeof global.WorkerGlobalScope == "function")
     return;
-  let { mod, name, type } = threads__default.default.workerData;
+  let { mod, name, type, inspect } = threads__default.default.workerData;
+
+  inspect && inspector.open();
+
   if (!mod)
     return mainThread();
   let self = global.self = global, q = [];
