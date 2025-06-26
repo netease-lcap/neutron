@@ -21,6 +21,8 @@ import {
 
 import WebView from '@/components/WebView';
 
+import { isUsefulCurrent } from '../../shared/tools';
+
 const getFavicon = () => {
   const selector = 'link[rel*="icon"]';
   const selected = document.querySelector(selector);
@@ -117,11 +119,11 @@ const Website = React.forwardRef((props = {}, ref) => {
   useLoopWhenWebViewReady(async () => {
     const { current } = ref;
 
-    if (!current) {
+    const useful = isUsefulCurrent(data);
+
+    if (!current || !useful) {
       return;
     }
-
-    await delay(1000 * 5);
 
     const code = `new Promise((resolve) => {
       const callback = () => resolve(performance.memory.usedJSHeapSize);
@@ -133,6 +135,8 @@ const Website = React.forwardRef((props = {}, ref) => {
     const size = await current?.executeJavaScript?.(code) || 0;
 
     setUsedJSHeapSize(size);
+
+    await delay(1000 * 5);
   }, ref);
 
   useLoopWhenWebViewReady(() => {
@@ -153,7 +157,7 @@ const Website = React.forwardRef((props = {}, ref) => {
       usedJSHeapSize,
     };
 
-    const setter = (prev) => {
+    const setter = (prev = {}) => {
       const every = (key) => object[key] === prev[key];
 
       const keys = Object.keys(object);

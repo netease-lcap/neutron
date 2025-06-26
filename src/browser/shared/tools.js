@@ -7,13 +7,26 @@ export const delay = (time = 0) => {
 };
 
 export const loop = (callback, time = 300) => {
-  let timer;
+  let timer = -1;
+  let end = false;
 
-  const start = async () => {
+  const execute = async () => {
     await callback();
-    timer = setTimeout(start, time);
+
+    timer && start();
   };
 
-  start();
-  return () => clearTimeout(timer);
+  const start = () => {
+    timer = setTimeout(
+      () => timer && execute(),
+      time,
+    );
+  };
+
+  execute();
+
+  return () => {
+    timer = undefined;
+    clearTimeout(timer);
+  };
 };
