@@ -145,6 +145,7 @@ const forPolyfill = () => {
   crashReporter.start({
     companyName: 'NetEase (Hangzhou) Network Co',
     productName: 'Neutron',
+    uploadToServer: true,
     ignoreSystemCrashHandler: true,
     submitURL: 'https://o4505198733361152.sentry.codewave.163.com/api/4509309441540096/minidump/?sentry_key=8ff3df805699b018d8879f6f23edfebe',
   });
@@ -156,7 +157,8 @@ const forRegister = () => {
   const language = getLanguage() || 'zh-CN';
 
   app.commandLine.appendSwitch('js-flags', jsFlag);
-  app.commandLine.appendSwitch('force_high_performance_gpu');
+  // 可能导致崩溃
+  // app.commandLine.appendSwitch('force_high_performance_gpu');
   app.commandLine.appendSwitch('ignore-certificate-errors', true);
 
   language && app.commandLine.appendSwitch('lang', language);
