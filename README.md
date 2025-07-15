@@ -36,10 +36,10 @@ window?.electron?.fetch?.(url);
 ```javascript
 // 创建运行在 Node.js 环境下的 Worker
 (async () => {
-  const fetched = await fetch(link);
-  const blob = await fetched.blob();
-  const buffer = await blob.arrayBuffer();
   const options = { name: 'node-worker' };
+
+  const fetched = await fetch(link);
+  const buffer = await fetched.arrayBuffer();
 
   window?.electron?.createWorker?.(buffer, options);
 })();
