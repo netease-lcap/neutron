@@ -20,7 +20,6 @@ import {
 import OutboardHair from './components/OutboardHair';
 import OutboardHead from './components/OutboardHead';
 import OutboardBody from './components/OutboardBody';
-import OutboardTips from './components/OutboardTips';
 
 const { Provider } = SharedContext;
 
@@ -161,7 +160,6 @@ const Container = React.forwardRef((props = {}, ref) => {
         <OutboardHair />
         <OutboardHead />
         <OutboardBody />
-        <OutboardTips />
       </div>
     </Provider>
   );

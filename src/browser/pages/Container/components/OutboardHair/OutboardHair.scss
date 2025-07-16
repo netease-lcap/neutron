@@ -187,6 +187,7 @@ $tabContentRadius: 10px;
           font-weight: bold;
           text-shadow: 1px 1px rgba(black, .05);
           border-radius: 50px;
+          transform: scale(.85);
           
           &.warning {
             background-color: style.$orange;
