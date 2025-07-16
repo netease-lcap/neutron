@@ -56,8 +56,8 @@ const OutboardHair = React.forwardRef((props = {}, ref) => {
   const items = data.map((item = {}) => {
     const {
       id,
-      active,
       title,
+      active,
       favicon,
     } = item;
 

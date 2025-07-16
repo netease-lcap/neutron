@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import classnames from 'classnames';
 
 import { setToArray } from '../../shared/tools';
@@ -11,13 +11,18 @@ const OutboardBody = React.forwardRef((props = {}, ref) => {
   const { className, ...others } = props;
 
   const [data = [], setData] = useDangerSharedContext('data');
+  const [deadpool = [], setDeadpool] = useDangerSharedContext('deadpool');
 
   const cls = classnames({
     'components-outboard-body-render': true,
     [className]: !!className,
   });
 
-  const items = data.map((item = {}) => {
+  const merged = useMemo(() => {
+    return [...data, ...deadpool];
+  }, [data, deadpool]);
+
+  const items = merged.map((item = {}) => {
     const { id, active } = item;
 
     const itemCls = classnames({

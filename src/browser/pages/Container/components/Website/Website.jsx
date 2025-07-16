@@ -42,7 +42,7 @@ const Website = React.forwardRef((props = {}, ref) => {
   const {
     className,
     data = {},
-    setData = () => {},
+    setData: propsSetData = () => {},
     ...others
   } = props;
 
@@ -58,6 +58,14 @@ const Website = React.forwardRef((props = {}, ref) => {
   });
 
   const [usedJSHeapSize, setUsedJSHeapSize] = useState(0);
+
+  const setData = useEventCallback((source) => {
+    const functional = typeof source === 'function';
+    const callback = (prev) => prev?.id && source?.(prev);
+    const target = functional ? callback : source;
+
+    propsSetData?.(target);
+  });
 
   const onChangeSrc = useEventCallback((src) => {
     setData((prev) => ({ ...prev, src }));
@@ -157,7 +165,7 @@ const Website = React.forwardRef((props = {}, ref) => {
       usedJSHeapSize,
     };
 
-    const setter = (prev = {}) => {
+    const callback = (prev = {}) => {
       const every = (key) => object[key] === prev[key];
 
       const keys = Object.keys(object);
@@ -166,7 +174,7 @@ const Website = React.forwardRef((props = {}, ref) => {
       return same ? prev : { ...prev, ...object };
     };
 
-    setData(setter);
+    setData(callback);
   }, ref);
 
   return (

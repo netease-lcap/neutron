@@ -93,8 +93,12 @@ export const setToArray = (setArray = () => {}, find = () => {}) => (next) => {
 
     const functional = typeof next === 'function';
     const basic = functional ? next(found) : next;
-    const current = basic?.id ? basic : { id: getKey(), ...basic };
 
+    if (!basic) {
+      return source;
+    }
+
+    const current = basic?.id ? basic : { id: getKey(), ...basic };
     const handler = (result, handler) => handler(result)(current) || result;
 
     return found === current

@@ -24,11 +24,14 @@ import OutboardTips from './components/OutboardTips';
 
 const { Provider } = SharedContext;
 
+const pool = [];
+
 const Container = React.forwardRef((props = {}, ref) => {
   const { className, ...others } = props;
 
   const [data = [], setData] = useData();
   const [memory = {}, setMemory] = useMemory();
+  const [deadpool = [], setDeadpool] = useState([]);
   const [current = {}, setCurrent] = useCurrent(data, setData);
 
   const [tips = [], setTips] = useState([]);
@@ -56,15 +59,33 @@ const Container = React.forwardRef((props = {}, ref) => {
   const removeBySource = useEventCallback(async (source = current) => {
     const { id: sourceId, src }  = source;
 
-    const element = document.getElementById(sourceId);
-    const filter = (item) => item?.id !== sourceId;
-    const filtered = data.filter(filter);
-    const useful = isUsefulSrc(src);
+    {
+      const filter = (item) => item?.id !== sourceId;
+      const filtered = data.filter(filter);
+      const useful = isUsefulSrc(src);
 
-    await beforeunload(element);
-    
-    useful && recorder.add(source);
-    setData(filtered);
+      useful && recorder.add(source);
+      setData(filtered);
+    };
+
+    {
+      const { active, ...caught } = source;
+
+      const element = document.getElementById(sourceId);
+      const filter = (item) => item?.id !== sourceId;
+      const after = () => pool.filter(filter);
+
+      const dead = pool.some(filter);
+      const merged = [...pool, caught];
+
+      if (dead) {
+        return;
+      }
+
+      setDeadpool(merged);
+      await beforeunload(element);
+      setDeadpool(after);
+    };
   });
 
   const onHandleTab = useEventCallback(async (event = {}) => {
@@ -96,6 +117,7 @@ const Container = React.forwardRef((props = {}, ref) => {
     data: [data, setData],
     memory: [memory, setMemory],
     current: [current, setCurrent],
+    deadpool: [deadpool, setDeadpool],
     tips: [tips, setTips],
     instance: [instance, setInstance],
   });
