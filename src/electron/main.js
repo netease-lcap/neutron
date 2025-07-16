@@ -1,4 +1,5 @@
 const os = require('os');
+const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
 const {
@@ -22,6 +23,8 @@ const {
   sendToAllWindows,
   execCommands,
   getLanguage,
+  writeFile,
+  cacher,
 } = require('./tools.js');
 
 const Worker = require('./node-worker.js');
@@ -236,6 +239,30 @@ const forRegisterWhenReady = async () => {
 
     return { type, buffer };
   });
+
+  ipcMain.handle('fetchAndCacheScript', async (event, ...args) => {
+    const [link = ''] = args;
+
+    const reg = /[^\.\w]/g;
+    const file = link.replace(reg, '_');
+    const cache = cacher.get(file);
+
+    if (cache) {
+      return cache;
+    }
+
+    const read = await cacher.read(file);
+
+    if (read) {
+      return read;
+    }
+
+    const fetched = await fetch(...args);
+    const content = await fetched.text();
+
+    cacher.set(file, content);
+    return content;
+  });
   
   ipcMain.handle('execCommands', (event, ...args) => execCommands(...args));
 
@@ -298,6 +325,10 @@ const forRegisterWhenReady = async () => {
   });
 
   await createWindow();
+
+  app.on('before-quit', () => {
+    cacher.clear();
+  });
 
   app.on('activate', () => {
     const windows = BrowserWindow.getAllWindows();

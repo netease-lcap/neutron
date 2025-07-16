@@ -79,6 +79,7 @@ const beforeunload = (() => {
 })();
 
 const fetchBufferAndType = ipcInvokeWithChannel('fetchBufferAndType');
+const fetchAndCacheScript = ipcInvokeWithChannel('fetchAndCacheScript');
 
 const createObjectURLByUrl = async (url = '') => {
   const fetched = await fetchBufferAndType(url) || {};
@@ -173,6 +174,7 @@ contextBridge.exposeInMainWorld('electron', {
   beforeunload,
   fetchBufferAndType,
   createObjectURLByUrl,
+  fetchAndCacheScript,
   invoke: ipcInvokeWithChannel,
   platform: () => process.platform,
   node: () => process.versions.node,
@@ -184,3 +186,70 @@ contextBridge.exposeInMainWorld('electron', {
   totalmem: ipcInvokeWithChannel('totalmem'),
   execCommands: ipcInvokeWithChannel('execCommands'),
 });
+
+(() => {
+  const handler = () => {
+    const cacheKeywords = window.__cacheKeywords__ || ['mdd-ide'];
+    const createElement = document.createElement.bind(document);
+    const fetchAndCacheScript = window.electron?.fetchAndCacheScript;
+
+    if (!createElement) {
+      return;
+    }
+
+    document.createElement = (...args) => {
+      const created = createElement(...args);
+
+      if (!window.loadIdeEntry) {
+        return created;
+      }
+
+      if (!fetchAndCacheScript) {
+        return created;
+      }
+
+      const { tagName } = created;
+
+      if (tagName !== 'SCRIPT') {
+        return created;
+      }
+
+      const attribue = 'src';
+
+      const getter = () => created._src;
+
+      const setter = (value) => {
+        const some = (item) => value?.includes?.(item);
+        const included = cacheKeywords?.some?.(some);
+
+        created._src = value;
+
+        if (!included) {
+          return created.setAttribute(attribue, value);
+        }
+
+        (async () => {
+          const event = new Event('load');
+          const url = new URL(value, window.location.href);
+          const innerHTML = await fetchAndCacheScript(url.href);
+
+          created.innerHTML = innerHTML;
+          setTimeout(() => created.dispatchEvent(event));
+        })();
+
+        return value;
+      };
+
+      const options = { get: getter, set: setter };
+
+      Object.defineProperty(created, attribue, options);
+
+      return created;
+    };
+  };
+
+  const code = handler.toString();
+  const javasctipt = `(${code})()`;
+
+  webFrame.executeJavaScript(javasctipt);
+})();

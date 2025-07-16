@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { app } = require('electron');
 
 const { spawn, execSync } = require('child_process');
 const { BrowserWindow } = require('electron');
@@ -202,6 +203,76 @@ const getLanguage = () => {
   return first?.replace?.(reg, '-');
 };
 
+const writeFile = async (...args) => {
+  const [filePath] = args;
+
+  const directoryPath = path.dirname(filePath);
+  const directoryExisted = fs.existsSync(directoryPath);
+
+  if (!directoryExisted) {
+    await fs.promises.mkdir(directoryPath, { recursive: true });
+  }
+
+  return fs.promises.writeFile(...args);
+};
+
+const cacher = (() => {
+  const lifetime = 1000 * 60 * 60 * 24 * 7;
+  const directory = 'neutron/_cache';
+  const options = { encoding: 'utf8' };
+
+  const cacher = new Map();
+  const dataPath = app.getPath('appData');
+  const directoryPath = path.resolve(dataPath, directory);
+
+  const getter = (key) => cacher.get(key);
+
+  const read = async (key) => {
+    const absolutePath = path.resolve(directoryPath, key);
+    const existed = fs.existsSync(absolutePath);
+
+    if (!existed) {
+      return;
+    }
+
+    const source = await fs.promises.readFile(absolutePath, options);
+
+    cacher.set(key, source);
+    return source;
+  };
+
+  const setter = (key, value) => {
+    const absolutePath = path.resolve(directoryPath, key);
+
+    writeFile(absolutePath, value, options);
+    cacher.set(key, value);
+    return value;
+  };
+
+  const clear = () => {
+    const now = Date.now();
+    const files = fs.readdirSync(directoryPath) || [];
+
+    files.forEach((file) => {
+      const absolutePath = path.resolve(directoryPath, file);
+      const { mtime = 0 } = fs.statSync(absolutePath) || {};
+
+      const time = new Date(mtime);
+      const life = now - time;
+      const dead = life > lifetime;
+
+      dead && fs.rm(absolutePath);
+    });
+  };
+
+  return {
+    read,
+    clear,
+    get: getter,
+    set: setter,
+  };
+})();
+
 module.exports = {
   isFunction,
   createURL,
@@ -210,4 +281,6 @@ module.exports = {
   execCommand,
   execCommands,
   getLanguage,
+  writeFile,
+  cacher,
 };
