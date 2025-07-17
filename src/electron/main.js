@@ -25,6 +25,7 @@ const {
   getLanguage,
   writeFile,
   cacher,
+  safe,
 } = require('./tools.js');
 
 const Worker = require('./node-worker.js');
@@ -263,21 +264,57 @@ const forRegisterWhenReady = async () => {
     cacher.set(file, content);
     return content;
   });
+
+  ipcMain.handle('fetchPasswordFromSafe', (event, host) => safe.get(host));
   
   ipcMain.handle('execCommands', (event, ...args) => execCommands(...args));
 
   ipcMain.handle('beforeunload', (event = {}, context = {}) => {
     const { sender: { ipc } = {} } = event;
-    const { beacons = [] } = context;
+    const {
+      host,
+      inputs = [],
+      beacons = [],
+    } = context;
 
-    ipc?.removeAllListeners?.();
+    (async () => {
+      if (!host) {
+        return;
+      }
 
-    beacons.forEach((beacon) => {
-      const got = store.get(beacon);
+      const isPassword = (item) => item?.value && item?.type === 'password';
+      const index = inputs.findIndex(isPassword);
 
-      got?.terminate?.();
-      store.delete(beacon);
-    });
+      if (index <= 0) {
+        return;
+      }
+
+      const previousInput = inputs[index - 1] || {};
+      const { value } = previousInput;
+
+      if (!value) {
+        return;
+      }
+
+      const object = await safe.get(host) || {};
+      const { recorder: source = {} } = object;
+
+      const recorder = { ...source, [value]: inputs };
+      const merged = { ...object, recorder, inputs };
+
+      safe.set(host, merged);
+    })();
+
+    (() => {
+      ipc?.removeAllListeners?.();
+
+      beacons.forEach((beacon) => {
+        const got = store.get(beacon);
+
+        got?.terminate?.();
+        store.delete(beacon);
+      });
+    })();
   });
 
   ipcMain.handle('NodeWorker', (event, beacon, action, ...args) => {

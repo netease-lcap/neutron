@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { app } = require('electron');
+const { app, safeStorage } = require('electron');
 
 const { spawn, execSync } = require('child_process');
 const { BrowserWindow } = require('electron');
@@ -273,6 +273,38 @@ const cacher = (() => {
   };
 })();
 
+const safe = (() => {
+  const prefix = '_safe_';
+
+  const getter = async (key) => {
+    key = `${prefix}${key}`;
+
+    const base64 = await cacher.read(key);
+
+    if (!base64) {
+      return;
+    }
+
+    const buffer = Buffer.from(base64, 'base64');
+    const json = safeStorage.decryptString(buffer) || '{}';
+
+    return JSON.parse(json);
+  };
+
+  const setter = async (key, value) => {
+    key = `${prefix}${key}`;
+
+    const matched = typeof value === 'string';
+    const json = matched ? value : JSON.stringify(value);
+    const buffer = safeStorage.encryptString(json);
+    const base64 = buffer.toString('base64');
+
+    cacher.set(key, base64);
+  };
+
+  return { get: getter, set: setter };
+})();
+
 module.exports = {
   isFunction,
   createURL,
@@ -283,4 +315,5 @@ module.exports = {
   getLanguage,
   writeFile,
   cacher,
+  safe,
 };

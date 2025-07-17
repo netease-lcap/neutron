@@ -47,6 +47,10 @@ const ipvWorkerInvoke = (workerBeacon) => (channel) => (...args) => {
   return ipcInvoke('NodeWorker', workerBeacon, channel, ...args);
 };
 
+const fetchBufferAndType = ipcInvokeWithChannel('fetchBufferAndType');
+const fetchAndCacheScript = ipcInvokeWithChannel('fetchAndCacheScript');
+const fetchPasswordFromSafe = ipcInvokeWithChannel('fetchPasswordFromSafe');
+
 const createWorker = (...args) => {
   const beacon = createBeacon();
   const invoke = ipvWorkerInvoke(beacon);
@@ -63,23 +67,83 @@ const createWorker = (...args) => {
 };
 
 const beforeunload = (() => {
+  const { location: { host } = {} } = window;
+
+  const types = ['text', 'password'];
+
+  const toSelector = (item) => `input[type=${item}]:not([autocomplete=off])`;
+  const selector = types.map(toSelector).join(',');
+
+  const elementToCurrent = (element = {}) => {
+    const { type, value } = element;
+    return { type, value };
+  };
+
+  const getInputs = () => {
+    const elements = document.querySelectorAll(selector) || [];
+    const array = Array.from(elements);
+
+    return array.map(elementToCurrent);
+  };
+
+  const forEachType = (inputs = []) => (type) => {
+    if (!type) {
+      return;
+    }
+
+    const currentSelector = toSelector(type);
+    const currentInputs = inputs.filter((item) => item?.type == type);
+    const currentElements = document.querySelectorAll(currentSelector) || [];
+
+    const forEach = (input, index) => {
+      const element = currentElements[index];
+
+      if (!element || element?.value) {
+        return;
+      }
+
+      const event = new Event('input');
+
+      element.value = input.value;
+      element.dispatchEvent(event);
+    };
+
+    currentInputs.forEach(forEach);
+  };
+
+  const setInputs = async () => {
+    const passwordSelector = toSelector('password');
+    const passwordElements = document.querySelectorAll(passwordSelector);
+
+    if (!passwordElements?.length) {
+      return;
+    }
+
+    const fetched = await fetchPasswordFromSafe(host) || {};
+    const forEach = forEachType(fetched?.inputs || []);
+
+    types.forEach(forEach);
+  };
+
+  window.addEventListener('load', () => {
+    setTimeout(setInputs, 2500);
+  });
+
   webFrame.executeJavaScript(`
     window.addEventListener('beforeunload', () => {
       window.electron?.beforeunload?.();
-    }); 
+    });
   `);
 
   return async (...args) => {
+    const inputs = getInputs();
     const beacons = Array.from(store.keys());
-    const context = { beacons };
+    const context = { host, beacons, inputs };
 
     // window?.gc?.();
     return ipcRenderer.invoke('beforeunload', context);
   };
 })();
-
-const fetchBufferAndType = ipcInvokeWithChannel('fetchBufferAndType');
-const fetchAndCacheScript = ipcInvokeWithChannel('fetchAndCacheScript');
 
 const createObjectURLByUrl = async (url = '') => {
   const fetched = await fetchBufferAndType(url) || {};
@@ -173,8 +237,9 @@ contextBridge.exposeInMainWorld('electron', {
   createWorker,
   beforeunload,
   fetchBufferAndType,
-  createObjectURLByUrl,
   fetchAndCacheScript,
+  fetchPasswordFromSafe,
+  createObjectURLByUrl,
   invoke: ipcInvokeWithChannel,
   platform: () => process.platform,
   node: () => process.versions.node,
