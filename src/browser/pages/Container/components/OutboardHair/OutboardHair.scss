@@ -42,7 +42,7 @@ $tabContentRadius: 10px;
       }
 
       &.active {
-        background: style.$black3;
+        background: style.$black4;
         border-radius: $tabRadius $tabRadius 0 0;
 
         .item-content {
@@ -66,7 +66,7 @@ $tabContentRadius: 10px;
             width: $tabRadius * 2;
             height: $tabRadius * 2;
             border-radius: 50%;
-            box-shadow: 0 0 0 5px style.$black3;
+            box-shadow: 0 0 0 5px style.$black4;
           }
         }
 
@@ -105,7 +105,7 @@ $tabContentRadius: 10px;
             height: 20px;
             width: 2px;
             height: 15px;
-            background: style.$black3;
+            background: style.$black4;
           }
         }
 
@@ -256,8 +256,8 @@ $tabContentRadius: 10px;
 }
 
 .components-outboard-hair-render {
-  color: style.$black5;
-  background: style.$black;
+  color: style.$black6;
+  background: style.$black2;
   user-select: none;
   app-region: drag;
 

@@ -21,11 +21,16 @@ const storage = {
   }, 300),
 };
 
-export const createHandler = (key) => ({
-  get: (...args) => storage.get(key, ...args),
+export const createHandler = (key, defaulted) => ({
+  get: (...args) => storage.get(key, ...args) || defaulted,
   set: (...args) => storage.set(key, ...args),
   remove: (...args) => storage.remove(key, ...args),
 });
+
+export const searchEngine = createHandler(
+  'search_engine',
+  'https://cn.bing.com/search?q=%s',
+);
 
 export const isSecureSrc = async (src = '') => {
   const options = { method: 'HEAD' };

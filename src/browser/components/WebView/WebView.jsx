@@ -50,6 +50,7 @@ const WebView = React.forwardRef((props = {}, ref) => {
     const got = ref?.current?.getURL?.();
 
     setPreviousSrc(got);
+    ref.current.ready = true;
   }, ref);
 
   return (

@@ -181,6 +181,10 @@ const forRegister = () => {
       webPreferences.preload = webPreferences.preload || preload;
     });
 
+    webContents.on('found-in-page', (event, result) => {
+      sendToAllWindows('HandleFind', result);
+    });
+
     webContents.setWindowOpenHandler((event = {}) => {
       const creater = (options) => {
         const { url: src, referrer = {} } = event;
@@ -228,6 +232,8 @@ const forRegisterWhenReady = async () => {
   ipcMain.handle('freemem', (event, ...args) => os.freemem(...args));
 
   ipcMain.handle('totalmem', (event, ...args) => os.totalmem(...args));
+
+  ipcMain.handle('triggerFind', (event, ...args) => sendToAllWindows('HandleFind'));
 
   ipcMain.handle('fetchBufferAndType', async (event, ...args) => {
     const attribute = 'content-type';

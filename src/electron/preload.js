@@ -70,9 +70,20 @@ const beforeunload = (() => {
   const { location: { host } = {} } = window;
 
   const types = ['text', 'password'];
+  const attribute = 'neutron-auto-fill';
 
   const toSelector = (item) => `input[type=${item}]:not([autocomplete=off])`;
   const selector = types.map(toSelector).join(',');
+
+  const addStyle = () => {
+    const element = document.createElement('style');
+
+    element.textContent = `input[${attribute}] {
+      background-color: rgb(232, 240, 254);
+    }`;
+
+    document.head.appendChild(element);
+  };
 
   const elementToCurrent = (element = {}) => {
     const { type, value } = element;
@@ -84,6 +95,11 @@ const beforeunload = (() => {
     const array = Array.from(elements);
 
     return array.map(elementToCurrent);
+  };
+
+  const listener = (event) => {
+    event?.target?.removeAttribute(attribute);
+    event?.removeEventListener('input', listener);
   };
 
   const forEachType = (inputs = []) => (type) => {
@@ -106,6 +122,8 @@ const beforeunload = (() => {
 
       element.value = input.value;
       element.dispatchEvent(event);
+      element.setAttribute(attribute, '');
+      element.addEventListener('input', listener);
     };
 
     currentInputs.forEach(forEach);
@@ -126,6 +144,7 @@ const beforeunload = (() => {
   };
 
   window.addEventListener('load', () => {
+    addStyle();
     setTimeout(setInputs, 2500);
   });
 
@@ -140,7 +159,6 @@ const beforeunload = (() => {
     const beacons = Array.from(store.keys());
     const context = { host, beacons, inputs };
 
-    // window?.gc?.();
     return ipcRenderer.invoke('beforeunload', context);
   };
 })();
@@ -155,23 +173,6 @@ const createObjectURLByUrl = async (url = '') => {
   return URL.createObjectURL(blob, options);
 };
 
-(() => {
-  const { performance: { memory = {} } = {} } = window;
-  const { usedJSHeapSize = 0 } = memory;
-
-  const oneKB = 1024;
-  const oneMB = oneKB * 1024;
-  const oneGB = oneMB * 1024;
-  const large = usedJSHeapSize > oneGB;
-
-  // large && window?.gc?.();
-})();
-
-// TODO Electron redirect 存在 bug - https://github.com/electron/electron/issues/43715
-// navigator?.serviceWorker?.register?.(
-//   '/cacher?neutron&localization&file=/browser/worker/cacher.js',
-// );
-
 ipcRenderer.addListener('Refresh', (event) => {
   const webview = document.querySelector('webview.active');
 
@@ -183,6 +184,41 @@ ipcRenderer.addListener('Refresh', (event) => {
   } else {
     window.location.reload();
   }
+});
+
+(() => {
+  const invoke = ipcInvokeWithChannel('triggerFind');
+
+  const listener = (event) => {
+    const {
+      which,
+      ctrlKey,
+      metaKey,
+      defaultPrevented,
+    } = event;
+
+    if (defaultPrevented) {
+      return;
+    }
+
+    const finding = which === 70;
+    const pressed = ctrlKey || metaKey;
+    const macthed = finding && pressed;
+
+    macthed && invoke();
+  };
+
+  window.addEventListener('keydown', (...args) => {
+    setTimeout(() => listener(...args));
+  });
+})();
+
+ipcRenderer.addListener('HandleFind', (event, detail) => {
+  const name = 'handle-find';
+  const options = { detail };
+  const custom = new CustomEvent(name, options);
+
+  document.dispatchEvent(custom);
 });
 
 ipcRenderer.addListener('HandleTab', (event, detail) => {

@@ -140,7 +140,10 @@ const Website = React.forwardRef((props = {}, ref) => {
       timeout(callback);
     })`;
 
-    const size = await current?.executeJavaScript?.(code) || 0;
+    const number = await current?.executeJavaScript?.(code) || 0;
+    const unit = 1024 * 1024 * 10;
+    const more = number % unit;
+    const size = number - more;
 
     setUsedJSHeapSize(size);
 

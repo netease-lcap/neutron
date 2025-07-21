@@ -1,0 +1,96 @@
+@use '../../shared/style';
+
+@mixin settingsContent {
+  .settings-content {
+    margin: 20px auto;
+    width: 680px;
+    background-color: style.$black3;
+    border-radius: 10px;
+    box-shadow: 0 0 5px rgba(black, .3);
+  }
+}
+
+@mixin settingsItem {
+  .settings-item {
+    display: flex;
+    padding: 20px;
+
+    .item-main {
+      flex: 1;
+      font-size: 13px;
+
+      .main-description {
+        opacity: .8;
+      }
+    }
+
+    .item-rest {
+      width: 240px;
+
+      > * {
+        & + * {
+          margin-top: 5px;
+        }
+      }
+
+      .rest-input {
+        border-bottom: 1px solid style.$black8;
+
+        .input {
+          display: inline-block;
+          padding: 0 0 2px 0;
+          width: 100%;
+          border: none;
+          outline: none;
+          color: style.$black8;
+          background: transparent;
+        }
+      }
+
+      .rest-tags {
+        display: flex;
+        gap: 5px;
+
+        .tag {
+          padding: 2px 8px;
+          font-size: 13px;
+          border-radius: 5px;
+          background-color: style.$black4;
+          cursor: pointer;
+          user-select: none;
+          transition: .2s;
+
+          &:hover {
+            opacity: .75;
+          }
+
+          &.active {
+            color: style.$blue4;
+            background-color: style.$blue;
+          }
+        }
+      }
+    }
+  }
+}
+
+.components-outboard-settings-render {
+  position: absolute;
+  padding: 10px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: style.$black8;
+  background-color: style.$black;
+  transition: .2s;
+  z-index: 1;
+
+  &:not(.visible) {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  @include settingsContent;
+  @include settingsItem;
+}

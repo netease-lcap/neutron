@@ -1,0 +1,88 @@
+@use '../../shared/style';
+
+@mixin findSearch {
+  .find-search {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 240px;
+    color: style.$black7;
+
+    .search-input {
+      border: none;
+      outline: none;
+      background-color: transparent;
+    }
+
+    .search-number {
+      font-size: 13px;
+    }
+  }
+}
+
+@mixin findTools {
+  .find-tools {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    font-weight: bold;
+
+    .tools-item {
+      position: relative;
+      width: 25px;
+      height: 25px;
+      color: rgba(white, .4);
+      border-radius: 50%;
+      transition: .2s;
+
+      &:hover {
+        background-color: rgba(white, .1);
+      }
+
+      &.disabled {
+        color: rgba(white, .2);
+        pointer-events: none;
+      }
+
+      .icon {
+        font-size: 14px;
+        line-height: 1;
+
+        @extend %percenter;
+
+        &.offset {
+          margin-top: 1px;
+        }
+      }
+    }
+  }
+}
+
+.components-outboard-find-render {
+  display: flex;
+  position: relative;
+  padding: 10px 0;
+  font-size: 12px;
+  border-radius: 8px;
+  background-color: style.$black;
+  box-shadow: 0 0 5px rgba(black, .3);
+  transition: .2s;
+
+  &:not(.visible) {
+    opacity: 0;
+    transform: translate(0, -25%);
+    pointer-events: none;
+  }
+
+  > * {
+    padding: 2px 15px;
+
+    & + * {
+      border-left: 1px solid rgba(white, .25);
+    }
+  }
+
+  @include findSearch;
+  @include findTools;
+}

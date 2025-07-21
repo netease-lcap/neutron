@@ -7,6 +7,8 @@ import { useDangerSharedContext } from '../../shared/hooks';
 
 import Website from '../Website';
 
+import OutboardSettings from '../OutboardSettings';
+
 const OutboardBody = React.forwardRef((props = {}, ref) => {
   const { className, ...others } = props;
 
@@ -22,31 +24,40 @@ const OutboardBody = React.forwardRef((props = {}, ref) => {
     return [...data, ...deadpool];
   }, [data, deadpool]);
 
-  const items = merged.map((item = {}) => {
-    const { id, active } = item;
+  const renderItems = () => {
+    return merged.map((item = {}) => {
+      const { id, active } = item;
 
-    const itemCls = classnames({
-      'body-website': true,
-      active,
+      const itemCls = classnames({
+        'body-website': true,
+        active,
+      });
+
+      const find = (got) => got?.id === id;
+      const setter = setToArray(setData, find);
+
+      return (
+        <Website
+          key={id}
+          id={id}
+          data={item}
+          setData={setter}
+          className={itemCls}
+        />
+      );
     });
+  };
 
-    const find = (got) => got?.id === id;
-    const setter = setToArray(setData, find);
-
+  const renderSettings = () => {
     return (
-      <Website
-        key={id}
-        id={id}
-        data={item}
-        setData={setter}
-        className={itemCls}
-      />
+      <OutboardSettings />
     );
-  });
+  };
 
   return (
     <div ref={ref} className={cls} {...others}>
-      { items }
+      { renderItems() }
+      { renderSettings() }
     </div>
   );
 });

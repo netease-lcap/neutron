@@ -34,6 +34,7 @@ const Container = React.forwardRef((props = {}, ref) => {
   const [current = {}, setCurrent] = useCurrent(data, setData);
 
   const [tips = [], setTips] = useState([]);
+  const [context, setContext] = useState({});
   const [instance, setInstance] = useState();
 
   const { id } = current;
@@ -51,7 +52,7 @@ const Container = React.forwardRef((props = {}, ref) => {
 
       return useful && webview?.executeJavaScript(code);
     } catch (error) {
-      console.error(error);      
+      console.error(error);
     }
   });
 
@@ -118,8 +119,13 @@ const Container = React.forwardRef((props = {}, ref) => {
     current: [current, setCurrent],
     deadpool: [deadpool, setDeadpool],
     tips: [tips, setTips],
+    context: [context, setContext],
     instance: [instance, setInstance],
   });
+
+  useEffect(() => {
+    instance?.ready && instance?.focus?.();
+  }, [instance]);
 
   useEffect(() => {
     const element = document.getElementById(id);

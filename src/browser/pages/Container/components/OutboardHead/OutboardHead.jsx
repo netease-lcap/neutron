@@ -12,8 +12,8 @@ import {
 } from '@/shared/hooks';
 
 import Iconfont from '@/components/Iconfont';
-
 import {
+  searchEngine,
   isUsefulSrc,
   isSecureSrc,
   isAvailableSrc,
@@ -22,6 +22,8 @@ import {
 import { useDangerSharedContext } from '../../shared/hooks';
 
 import Favicon from '../Favicon';
+
+import OutboardFind from '../OutboardFind';
 
 const OutboardHead = React.forwardRef((props = {}, ref) => {
   const { className, ...others } = props;
@@ -35,6 +37,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   const [memory = {}, setMemory] = useDangerSharedContext('memory');
   const [instance, setInstance] = useDangerSharedContext('instance');
   const [current = {}, setCurrent] = useDangerSharedContext('current');
+  const [context = {}, setContext] = useDangerSharedContext('context');
 
   const beforeunload = useDangerSharedContext('beforeunload');
 
@@ -44,6 +47,8 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     canGoBack,
     canGoForward,
   } = current;
+
+  const { settings = false } = context;
 
   const cls = classnames({
     'components-outboard-head-render': true,
@@ -64,6 +69,13 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     await beforeunload();
     instance?.reload?.();
   }, [instance]);
+
+  const onClickSettings = useEventCallback(() => {
+    const value = !settings;
+    const merged = { ...context, settings: value };
+
+    setContext(merged);
+  });
 
   const onBlurSrc = useEventCallback((event) => {
     setCompleting(false);
@@ -103,7 +115,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   });
 
   const refreshCompletions = useEventCallback(() => {
-    const faker = { src, title: '跳转地址' };
+    const faker = { src, title: '搜索内容' };
     const merged = { [src]: faker, ...memory };
 
     const hrefs = Object.keys(merged);
@@ -129,7 +141,10 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     setCompleting(false);
 
     const useful = isUsefulSrc(src);
-    const href = useful ? src : `https://${src}`;
+    const got = searchEngine.get() || '';
+    const replaced = got.replace('%s', src);
+    const defaulted = replaced || `https://${src}`;
+    const href = useful ? src : defaulted;
 
     !useful && setCurrent((prev) => ({ ...prev, src: href }));
 
@@ -204,7 +219,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     return reload();
   });
 
-  const renderHeadOperations = () => {
+  const renderHeadPrefixOperations = () => {
     const backCls = classnames({
       'operations-item': true,
       disabled: !canGoBack,
@@ -225,6 +240,21 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
         </div>
         <div className="operations-item" onClick={onClickRefresh}>
           <Iconfont className="icon" name="refresh" />
+        </div>
+      </div>
+    );
+  };
+
+  const renderHeadSuffixOperations = () => {
+    const settingsCls = classnames({
+      'operations-item': true,
+      active: settings,
+    });
+
+    return (
+      <div className="head-operations">
+        <div className={settingsCls} onClick={onClickSettings}>
+          <Iconfont className="icon" name="settings" />
         </div>
       </div>
     );
@@ -286,6 +316,12 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     );
   };
 
+  const renderHeadSearchFind = () => {
+    return (
+      <OutboardFind className="search-find" />
+    );
+  };
+
   const renderHeadSearch = () => {
     const searchCls = classnames({
       'head-search': true,
@@ -297,6 +333,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
       <div className={searchCls}>
         { renderHeadSearchInput() }
         { renderHeadSearchCompletions() }
+        { renderHeadSearchFind() }
       </div>
     );
   };
@@ -336,8 +373,9 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
 
   return (
     <div ref={ref} className={cls} {...others}>
-      { renderHeadOperations() }
+      { renderHeadPrefixOperations() }
       { renderHeadSearch() }
+      { renderHeadSuffixOperations() }
     </div>
   );
 });

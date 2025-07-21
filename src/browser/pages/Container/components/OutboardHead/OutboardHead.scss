@@ -36,12 +36,12 @@
         pointer-events: none;
 
         .icon {
-          color: style.$black4;
+          color: style.$black5;
         }
       }
 
       .icon {
-        color: style.$black5;
+        color: style.$black6;
         font-size: 20px;
         font-weight: 300;
       }
@@ -56,11 +56,11 @@
     flex: 1;
     padding: 6px 10px;
     border-radius: 50px;
-    background: style.$black2;
+    background: style.$black3;
     border: 2px solid transparent;
 
     &:focus-within {
-      background: style.$black3;
+      background: style.$black4;
       border: 2px solid style.$blue3;
     }
 
@@ -73,7 +73,7 @@
 
     .search-input {
       flex: 1;
-      color: style.$black5;
+      color: style.$black6;
       font-size: 14px;
       font-weight: 300;
       border: none;
@@ -81,9 +81,16 @@
       background: transparent;
 
       &::selection {
-        color: style.$black6;
+        color: style.$black7;
         background-color: style.$blue2;
       }
+    }
+
+    .search-find {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      z-index: 10;
     }
 
     .search-completions {
@@ -95,7 +102,7 @@
       right: 0;
       z-index: 10;
       border-radius: 15px;
-      background: style.$black3;
+      background: style.$black4;
       box-shadow: 0 0 5px rgba(black, .5);
 
       .completions-item {
@@ -103,7 +110,7 @@
         position: relative;
         padding: 10px 15px;
         align-items: center;
-        color: style.$black5;
+        color: style.$black6;
         font-size: 14px;
         user-select: none;
 
@@ -150,7 +157,7 @@
             padding: 0 5px;
             font-size: 12px;
             font-weight: bold;
-            color: style.$black5;
+            color: style.$black6;
           }
         }
       }
@@ -163,7 +170,7 @@
   align-items: center;
   gap: 10px;
   padding: 5px 15px 8px 15px;
-  background: style.$black3;
+  background: style.$black4;
   border-bottom: 1px solid rgba(white, .05);
 
   @include headOperations;

@@ -14,7 +14,7 @@
 
     &:empty {
       &:not([src]) {
-        background: style.$black3;
+        background: style.$black4;
 
         &:before {
           content: '请输入网址';
@@ -28,11 +28,11 @@
       }
 
       &[src] {
-        background: style.$black7;
+        background: style.$black8;
 
         &:before {
           content: '加载中...';
-          color: style.$black;
+          color: style.$black2;
           font-size: 12px;
           font-style: italic;
           opacity: .5;
