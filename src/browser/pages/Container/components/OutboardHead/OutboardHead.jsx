@@ -219,6 +219,12 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     return reload();
   });
 
+  const onCompositionEnd = useEventCallback((event) => {
+    const { target: { value } = {} } = event;
+
+    triggerByInput(value);
+  });
+
   const renderHeadPrefixOperations = () => {
     const backCls = classnames({
       'operations-item': true,
@@ -271,8 +277,9 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
         onBlur={onBlurSrc}
         onFocus={onFocusSrc}
         onKeyUp={onKeyUpSrc}
-        onKeyDown={onKeyDownSrc}
         onChange={onChangeSrc}
+        onKeyDown={onKeyDownSrc}
+        onCompositionEnd={onCompositionEnd}
       />
     );
   };

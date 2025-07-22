@@ -47,10 +47,11 @@ const WebView = React.forwardRef((props = {}, ref) => {
   }, [previousSrc]);
 
   useLoopWhenWebViewReady(() => {
-    const got = ref?.current?.getURL?.();
+    const { current } = ref;
+    const got = current?.getURL?.();
 
     setPreviousSrc(got);
-    ref.current.ready = true;
+    current && (current.ready = true);
   }, ref);
 
   return (

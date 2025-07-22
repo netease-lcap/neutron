@@ -86,7 +86,6 @@ function mainThread() {
       this[WORKER].postMessage(data, transferList);
     }
     terminate() {
-      this[WORKER].postMessage('exit');
       setTimeout(() => this[WORKER].terminate());
     }
   }
@@ -109,11 +108,6 @@ function workerThread() {
     });
   }
   threads__default.default.parentPort.on("message", (data) => {
-    if (data === 'exit') {
-      process.exit(0);
-      return;
-    }
-
     let event = new Event("message");
     event.data = data, q == null ? self.dispatchEvent(event) : q.push(event);
   }), threads__default.default.parentPort.on("error", (err) => {

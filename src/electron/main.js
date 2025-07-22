@@ -186,11 +186,14 @@ const forRegister = () => {
     });
 
     webContents.setWindowOpenHandler((event = {}) => {
+      const { disposition } = event;
+
       const creater = (options) => {
         const { url: src, referrer = {} } = event;
         const { url: httpreferrer } = referrer;
 
-        const state = { src, httpreferrer }
+        const active = disposition !== 'background-tab';
+        const state = { src, active, httpreferrer };
         const detail = { type: 'add', state };
 
         sendToAllWindows('HandleTab', detail);

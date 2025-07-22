@@ -210,7 +210,7 @@ ipcRenderer.addListener('Refresh', (event) => {
 
   window.addEventListener('keydown', (...args) => {
     setTimeout(() => listener(...args));
-  });
+  }, { capture: true });
 })();
 
 ipcRenderer.addListener('HandleFind', (event, detail) => {
