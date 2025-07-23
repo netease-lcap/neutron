@@ -13,8 +13,6 @@ import classnames from 'classnames';
 
 import { useEventCallback } from '@/shared/hooks';
 
-import { searchEngine } from '../../shared/tools';
-
 import { useDangerSharedContext } from '../../shared/hooks';
 
 const operations = [
@@ -28,8 +26,6 @@ const operations = [
       { label: '谷歌', value: 'https://www.google.com.hk/search?q=%s' },
       { label: '百度', value: 'https://www.baidu.com/s?wd=%s' },
     ],
-    get: (...args) => searchEngine.get(...args),
-    set: (...args) => searchEngine.set(...args),
   },
 ];
 
@@ -37,34 +33,28 @@ const OutboardSettings = React.forwardRef((props = {}, ref) => {
   const { className, children, ...others } = props;
 
   const [current, setCurrent] = useDangerSharedContext('current');
-  const [context, setContext] = useDangerSharedContext('context');
-
-  const [source = {}, setSource] = useState({});
+  const [context = {}, setContext] = useDangerSharedContext('context');
+  const [settings = {}, setSettings] = useDangerSharedContext('settings');
 
   const { src } = current;
-  const { settings: visible } = context;
+  const { settingsVisible } = context;
 
   const cls = classnames({
     'components-outboard-settings-render': true,
     [className]: !!className,
-    visible,
+    visible: settingsVisible,
   });
 
   const getValueFromSource = useEventCallback((operation = {}) => {
-    const { key, get: getter } = operation;
-    const { [key]: saved } = source;
+    const { key } = operation;
 
-    const useless = saved === undefined;
-    const value = useless ? getter() : saved;
-
-    return value;
+    return settings[key];
   });
 
   const setValueToSource = useEventCallback((operation = {}) => (value) => {
-    const { key, set: setter } = operation;
+    const { key } = operation;
 
-    setter(value);
-    setSource({ ...source, [key]: value });
+    setSettings({ ...settings, [key]: value });
   });
 
   const renderOperationTags = (operation = {}) => {
@@ -139,8 +129,8 @@ const OutboardSettings = React.forwardRef((props = {}, ref) => {
   };
 
   useEffect(() => {
-    const settings = false;
-    const merged = { ...context, settings };
+    const settingsVisible = false;
+    const merged = { ...context, settingsVisible };
 
     setContext(merged);
   }, [src]);

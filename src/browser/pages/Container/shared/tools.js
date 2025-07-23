@@ -27,11 +27,6 @@ export const createHandler = (key, defaulted) => ({
   remove: (...args) => storage.remove(key, ...args),
 });
 
-export const searchEngine = createHandler(
-  'search_engine',
-  'https://cn.bing.com/search?q=%s',
-);
-
 export const isSecureSrc = async (src = '') => {
   const options = { method: 'HEAD' };
 
@@ -70,12 +65,25 @@ export const getKey = () => `${Date.now()}`;
 export const setToArray = (setArray = () => {}, find = () => {}) => (next) => {
   const handlers = [
     (result = []) => (current = {}) => {
+      const isActive = (item) => item.active;
       const some = (item) => item?.id === current?.id;
       const map = (item) => some(item) ? current : item;
 
-      return result.some(some)
-        ? result.map(map)
-        : result.concat(current);
+      const inclued = result.some(some);
+
+      if (inclued) {
+        return result.map(map);
+      }
+
+      const index = result.findIndex(isActive);
+      const sliced = result.slice();
+      const matched = index > -1 && current?.src;
+
+      matched
+        ? sliced.splice(index + 1, 0, current)
+        : sliced.push(current);
+
+      return sliced;
     },
     (result = []) => (current = {}) => {
       const { active } = current;

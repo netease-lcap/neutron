@@ -274,7 +274,7 @@ const cacher = (() => {
 })();
 
 const safe = (() => {
-  const prefix = '_safe_';
+  const prefix = '../_safe/';
 
   const getter = async (key) => {
     key = `${prefix}${key}`;
@@ -305,6 +305,46 @@ const safe = (() => {
   return { get: getter, set: setter };
 })();
 
+const storage = (() => {
+  const prefix = '../_storage/';
+
+  const getter = async (key) => {
+    key = `${prefix}${key}`;
+
+    const json = await cacher.read(key);
+
+    return json && JSON.parse(json);
+  };
+
+  const setter = async (key, value) => {
+    key = `${prefix}${key}`;
+
+    const matched = typeof value === 'string';
+    const json = matched ? value : JSON.stringify(value);
+
+    cacher.set(key, json);
+  };
+
+  return { get: getter, set: setter };
+})();
+
+const settings = (() => {
+  const key = 'neutron_settings.json';
+  const initial = { searchEngine: 'https://cn.bing.com/search?q=%s' };
+
+  const getter = async () => {
+    const got = await storage.get(key);
+
+    return got || initial;
+  };
+
+  const setter = (...args) => {
+    return storage.set(key, ...args);
+  };
+
+  return { get: getter, set: setter };
+})();
+
 module.exports = {
   isFunction,
   createURL,
@@ -316,4 +356,6 @@ module.exports = {
   writeFile,
   cacher,
   safe,
+  storage,
+  settings,
 };

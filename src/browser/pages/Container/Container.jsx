@@ -13,6 +13,7 @@ import {
   useData,
   useMemory,
   useCurrent,
+  useSettings,
   SharedContext,
   useDangerSharedProvided,
 } from './shared/hooks';
@@ -31,6 +32,7 @@ const Container = React.forwardRef((props = {}, ref) => {
   const [data = [], setData] = useData();
   const [memory = {}, setMemory] = useMemory();
   const [deadpool = [], setDeadpool] = useState([]);
+  const [settings = {}, setSettings] = useSettings();
   const [current = {}, setCurrent] = useCurrent(data, setData);
 
   const [tips = [], setTips] = useState([]);
@@ -50,6 +52,7 @@ const Container = React.forwardRef((props = {}, ref) => {
     try {
       const useful = webview?.src && webview?.getURL?.();
 
+      useful && webview?.setAudioMuted?.(true);
       return useful && webview?.executeJavaScript(code);
     } catch (error) {
       console.error(error);
@@ -95,7 +98,6 @@ const Container = React.forwardRef((props = {}, ref) => {
     switch (type) {
       case 'add': {
         setCurrent({ active: true, ...state });
-
         break;
       }
       case 'close': {
@@ -118,6 +120,7 @@ const Container = React.forwardRef((props = {}, ref) => {
     memory: [memory, setMemory],
     current: [current, setCurrent],
     deadpool: [deadpool, setDeadpool],
+    settings: [settings, setSettings],
     tips: [tips, setTips],
     context: [context, setContext],
     instance: [instance, setInstance],

@@ -12,7 +12,10 @@ import React, {
   createContext,
 } from 'react';
 
-import { useEventCallback } from '@/shared/hooks';
+import {
+  useEventCallback,
+  useDebounceCallback,
+} from '@/shared/hooks';
 
 import {
   getKey,
@@ -108,6 +111,28 @@ export const useMemory = () => {
   }, [value]);
 
   return [value, setValue];
+};
+
+export const useSettings = () => {
+  const initial = useMemo(() => ({}), []);
+  const [state = {}, setState] = useState(initial);
+
+  const setter = useDebounceCallback(() => {
+    const useful = state !== initial;
+
+    useful && electron?.settings?.('set', state);
+  });
+
+  useEffect(() => {
+    const promise = electron?.settings?.('get');
+    const then = (got = initial) => setState(got);
+
+    promise.then(then);
+  }, []);
+
+  useEffect(setter, [state]);
+
+  return [state, setState];
 };
 
 export const useCurrent = (source = [], setSource) => {

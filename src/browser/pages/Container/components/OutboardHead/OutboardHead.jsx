@@ -13,7 +13,6 @@ import {
 
 import Iconfont from '@/components/Iconfont';
 import {
-  searchEngine,
   isUsefulSrc,
   isSecureSrc,
   isAvailableSrc,
@@ -38,6 +37,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   const [instance, setInstance] = useDangerSharedContext('instance');
   const [current = {}, setCurrent] = useDangerSharedContext('current');
   const [context = {}, setContext] = useDangerSharedContext('context');
+  const [settings = {}, setSettings] = useDangerSharedContext('settings');
 
   const beforeunload = useDangerSharedContext('beforeunload');
 
@@ -48,7 +48,8 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     canGoForward,
   } = current;
 
-  const { settings = false } = context;
+  const { searchEngine = '' } = settings;
+  const { settingsVisible = false } = context;
 
   const cls = classnames({
     'components-outboard-head-render': true,
@@ -71,8 +72,8 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   }, [instance]);
 
   const onClickSettings = useEventCallback(() => {
-    const value = !settings;
-    const merged = { ...context, settings: value };
+    const value = !settingsVisible;
+    const merged = { ...context, settingsVisible: value };
 
     setContext(merged);
   });
@@ -141,8 +142,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     setCompleting(false);
 
     const useful = isUsefulSrc(src);
-    const got = searchEngine.get() || '';
-    const replaced = got.replace('%s', src);
+    const replaced = searchEngine.replace('%s', src);
     const defaulted = replaced || `https://${src}`;
     const href = useful ? src : defaulted;
 
@@ -254,7 +254,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   const renderHeadSuffixOperations = () => {
     const settingsCls = classnames({
       'operations-item': true,
-      active: settings,
+      active: settingsVisible,
     });
 
     return (

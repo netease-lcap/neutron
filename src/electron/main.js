@@ -26,7 +26,10 @@ const {
   writeFile,
   cacher,
   safe,
+  settings,
 } = require('./tools.js');
+
+const { createWebMenu } = require('./menus.js');
 
 const Worker = require('./node-worker.js');
 
@@ -185,6 +188,13 @@ const forRegister = () => {
       sendToAllWindows('HandleFind', result);
     });
 
+    webContents.on('context-menu', (event, params = {}) => {
+      const { x, y, frame } = params;
+      const webMenu = createWebMenu(webContents, params);
+
+      webMenu.popup({ x, y, frame });
+    });
+
     webContents.setWindowOpenHandler((event = {}) => {
       const { disposition } = event;
 
@@ -324,6 +334,10 @@ const forRegisterWhenReady = async () => {
         store.delete(beacon);
       });
     })();
+  });
+
+  ipcMain.handle('settings', (event = {}, action, ...args) => {
+    return settings[action](...args);
   });
 
   ipcMain.handle('NodeWorker', (event, beacon, action, ...args) => {

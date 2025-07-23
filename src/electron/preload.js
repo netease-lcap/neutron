@@ -285,5 +285,6 @@ contextBridge.exposeInMainWorld('electron', {
   fetch: ipcInvokeWithChannel('fetch'),
   freemem: ipcInvokeWithChannel('freemem'),
   totalmem: ipcInvokeWithChannel('totalmem'),
+  settings: ipcInvokeWithChannel('settings'),
   execCommands: ipcInvokeWithChannel('execCommands'),
 });
