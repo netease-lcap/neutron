@@ -119,7 +119,7 @@ function workerThread() {
     }
     // Emulates https://developer.mozilla.org/en-US/docs/Web/API/DedicatedWorkerGlobalScope/close
     close() {
-      process.exit();
+      // process.exit();
     }
     importScripts() {
       for (let i = 0; i < arguments.length; i++) {
