@@ -21,7 +21,10 @@ import {
 
 import WebView from '@/components/WebView';
 
-import { isUsefulCurrent } from '../../shared/tools';
+import {
+  websiteConfigs,
+  isUsefulCurrent,
+} from '../../shared/tools';
 
 const getFavicon = () => {
   const selector = 'link[rel*="icon"]';
@@ -43,6 +46,7 @@ const Website = React.forwardRef((props = {}, ref) => {
     className,
     data = {},
     setData: propsSetData = () => {},
+    webpreferences: propsWebpreferences = '',
     ...others
   } = props;
 
@@ -57,6 +61,7 @@ const Website = React.forwardRef((props = {}, ref) => {
     [className]: !!className,
   });
 
+  const [zoomFactor, setZoomFactor] = useState(1);
   const [usedJSHeapSize, setUsedJSHeapSize] = useState(0);
 
   const setData = useEventCallback((source) => {
@@ -70,6 +75,34 @@ const Website = React.forwardRef((props = {}, ref) => {
   const onChangeSrc = useEventCallback((src) => {
     setData((prev) => ({ ...prev, src }));
   });
+
+  const webpreferences = useMemo(() => {
+    const config = websiteConfigs.getBySrc(src) || {};
+    const { zoomFactor = 1 } = config;
+
+    const part = `zoomFactor=${zoomFactor}`;
+    const parts = [part, propsWebpreferences];
+    const merged = parts.filter(Boolean).join(',');
+
+    return merged;
+  }, [src, propsWebpreferences]);
+
+  useEffect(() => {
+    const { current } = ref;
+
+    if (!current) {
+      return;
+    }
+
+    const listener = () => {
+      const src = current.getURL();
+
+      setData((prev = {}) => ({ ...prev, src }));
+    };
+
+    document.addEventListener('refresh-webview', listener);
+    return () => document.removeEventListener('refresh-webview', listener);
+  }, [ref]);
 
   useEffect(() => {
     const { current } = ref;
@@ -124,6 +157,19 @@ const Website = React.forwardRef((props = {}, ref) => {
     return () => current.removeEventListener('page-favicon-updated', listener);
   }, [ref]);
 
+  useEffect(() => {
+    const { current } = ref;
+
+    if (!current?.ready) {
+      return;
+    }
+
+    const url = current.getURL();
+    const zoomFactor = current.getZoomFactor();
+
+    websiteConfigs.mergeBySrc(url, { zoomFactor });
+  }, [zoomFactor]);
+
   useLoopWhenWebViewReady(async () => {
     const { current } = ref;
 
@@ -133,19 +179,28 @@ const Website = React.forwardRef((props = {}, ref) => {
       return;
     }
 
-    const code = `new Promise((resolve) => {
-      const callback = () => resolve(performance.memory.usedJSHeapSize);
-      const timeout = requestIdleCallback || setTimeout;
+    {
+      const number = current?.getZoomFactor?.() || 1;
+      const useful = number !== zoomFactor;
 
-      timeout(callback);
-    })`;
+      useful && setZoomFactor(number);
+    }
 
-    const number = await current?.executeJavaScript?.(code) || 0;
-    const unit = 1024 * 1024 * 10;
-    const more = number % unit;
-    const size = number - more;
+    {
+      const code = `new Promise((resolve) => {
+        const callback = () => resolve(performance.memory.usedJSHeapSize);
+        const timeout = requestIdleCallback || setTimeout;
 
-    setUsedJSHeapSize(size);
+        timeout(callback);
+      })`;
+
+      const number = await current?.executeJavaScript?.(code) || 0;
+      const unit = 1024 * 1024 * 10;
+      const more = number % unit;
+      const size = number - more;
+
+      setUsedJSHeapSize(size);
+    }
 
     await delay(1000 * 5);
   }, ref);
@@ -187,6 +242,7 @@ const Website = React.forwardRef((props = {}, ref) => {
       src={src}
       className={cls}
       httpreferrer={httpreferrer}
+      webpreferences={webpreferences}
       onChangeSrc={onChangeSrc}
       {...others}
     />

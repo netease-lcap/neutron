@@ -27,6 +27,57 @@ export const createHandler = (key, defaulted) => ({
   remove: (...args) => storage.remove(key, ...args),
 });
 
+export const websiteConfigs = (() => {
+  let value;
+
+  const key = 'website_configs';
+  const handler = createHandler(key, {});
+
+  const getter = () => {
+    return value || handler.get();
+  };
+
+  const setter = (current) => {
+    value = setter;
+
+    return handler.set(current);
+  };
+
+  const getHostFromSrc = (src = '') => {
+    const matched = src.match(/:\/\/[^\/]+(\/|$)/) || [];
+    const [source = ''] = matched;
+
+    return source?.replace?.(/(^:\/\/)|(\/$)/g, '');
+  };
+
+  const getBySrc = (src = '') => {
+    const source = getter() || {};
+    const host = getHostFromSrc(src);
+
+    return source[host];
+  };
+
+  const setBySrc = (src = '', value = {}) => {
+    const source = getter() || {};
+    const host = getHostFromSrc(src);
+    const merged = { ...source, [host]: value };
+
+    return setter(merged);
+  };
+
+  const mergeBySrc = (src = '', more = {}) => {
+    const source = getter() || {};
+    const host = getHostFromSrc(src);
+
+    const { [host]: got = {} } = source;
+    const current = { ...got, ...more }
+
+    return setBySrc(src, current);
+  };
+
+  return { getBySrc, setBySrc, mergeBySrc };
+})();
+
 export const isSecureSrc = async (src = '') => {
   const options = { method: 'HEAD' };
 

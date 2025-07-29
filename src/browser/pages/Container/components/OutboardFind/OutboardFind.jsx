@@ -47,6 +47,14 @@ const OutboardFind = React.forwardRef((props = {}, ref) => {
     keyword && instance?.findInPage?.(keyword, options);
   });
 
+  const stopFindInPage = useEventCallback(() => {
+    if (!instance?.ready) {
+      return;
+    }
+
+    instance?.stopFindInPage?.('clearSelection');
+  });
+
   const onHandleFind = useEventCallback((event = {}) => {
     const detail = event?.detail;
     const { activeMatchOrdinal = 0, matches = 0 } = detail || {};
@@ -101,7 +109,7 @@ const OutboardFind = React.forwardRef((props = {}, ref) => {
       return;
     }
 
-    instance?.stopFindInPage?.('clearSelection');
+    stopFindInPage();
     visible && find();
   }, 300);
 
@@ -189,6 +197,7 @@ const OutboardFind = React.forwardRef((props = {}, ref) => {
       input?.current?.focus?.();
       find();
     } else {
+      stopFindInPage();
       input?.current?.select?.();
     }
   }, [visible]);

@@ -115,6 +115,40 @@ const createHistoryMenu = (webContents, params = {}) => {
   ];
 };
 
+const createZoomMenu = (webContents, params) => {
+  const factor = webContents?.getZoomFactor?.() || 0;
+  const number = Math.round(factor * 100);
+
+  const max = 2;
+  const min = 0.5;
+
+  const setZoomFactor = (offset = 0) => {
+    const a = factor + offset;
+    const b = Math.max(min, a);
+    const c = Math.min(max, b);
+
+    webContents?.setZoomFactor?.(c);
+  };
+
+  return [
+    {
+      label: `重置（当前：${number}%）`,
+      enabled: factor !== 1,
+      click: () => webContents?.setZoomFactor?.(1),
+    },
+    {
+      label: '放大',
+      enabled: factor < max,
+      click: () => setZoomFactor(0.1),
+    },
+    {
+      label: '缩小',
+      enabled: factor > min,
+      click: () => setZoomFactor(-0.1),
+    },
+  ];
+};
+
 const createToolMenu = (webContents, params) => {
   return [
     {
@@ -130,6 +164,7 @@ const createWebMenu = (webContents, params) => {
     createTextMenu(webContents, params),
     createImageMenu(webContents, params),
     createHistoryMenu(webContents, params),
+    createZoomMenu(webContents, params),
     createToolMenu(webContents, params),
   ];
 
