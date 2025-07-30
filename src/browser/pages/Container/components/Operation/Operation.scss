@@ -1,0 +1,43 @@
+@use '../../shared/style';
+
+.components-operation-render {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  transition: .2s;
+
+  &:hover {
+    background-color: rgba(white, .1);
+  }
+
+  &:active {
+    background-color: rgba(white, .3);
+  }
+
+  &.active {
+    &:hover {
+      background-color: style.$blue;
+    }
+
+    .icon {
+      color: style.$blue4;
+    }
+  }
+
+  &.disabled {
+    pointer-events: none;
+
+    .icon {
+      color: style.$black5;
+    }
+  }
+
+  .icon {
+    color: style.$black6;
+    font-size: 20px;
+    font-weight: 300;
+  }
+}

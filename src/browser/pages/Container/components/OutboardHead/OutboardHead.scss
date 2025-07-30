@@ -6,45 +6,6 @@
     gap: 2px;
 
     .operations-item {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      transition: .2s;
-
-      &:hover {
-        background-color: rgba(white, .1);
-      }
-
-      &:active {
-        background-color: rgba(white, .3);
-      }
-
-      &.active {
-        &:hover {
-          background-color: style.$blue;
-        }
-
-        .icon {
-          color: style.$blue4;
-        }
-      }
-
-      &.disabled {
-        pointer-events: none;
-
-        .icon {
-          color: style.$black5;
-        }
-      }
-
-      .icon {
-        color: style.$black6;
-        font-size: 20px;
-        font-weight: 300;
-      }
     }
   }
 }
@@ -52,9 +13,11 @@
 @mixin headSearch {
   .head-search {
     display: flex;
+    align-items: center;
     position: relative;
     flex: 1;
-    padding: 6px 10px;
+    padding: 0 10px;
+    height: 30px;
     border-radius: 50px;
     background: style.$black3;
     border: 2px solid transparent;
@@ -83,6 +46,15 @@
       &::selection {
         color: style.$black7;
         background-color: style.$blue2;
+      }
+    }
+
+    .search-bookmark {
+      width: 24px;
+      height: 24px;
+
+      .icon {
+        font-size: 22px;
       }
     }
 
@@ -165,14 +137,74 @@
   }
 }
 
+@mixin headBookmark {
+  .popped-bookmark {
+    color: style.$black7;
+
+    .popped-closable {
+      top: 10px !important;
+      right: 10px !important;
+
+      .icon {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .head-bookmark {
+    padding: 20px 20px 15px;
+    color: style.$black7;
+    background: style.$black;
+    border-radius: 15px;
+    box-shadow: 0 0 5px rgba(black, .2);
+
+    > * {
+      & + * {
+        margin-top: 10px;
+      }
+    }
+
+    .bookmark-info {
+      .input {
+        padding: 10px;
+        color: style.$black7;
+        border: 2px solid style.$blue3;
+        background: transparent;
+        border-radius: 10px;
+        outline: none;
+      }
+    }
+
+    .bookmark-control {
+      display: flex;
+      justify-content: space-around;
+      font-size: 12px;
+
+      .button {
+        color: style.$blue4;
+        user-select: none;
+        cursor: pointer;
+
+        &.dark {
+          color: style.$blue3;
+        }
+
+        &:hover {
+          opacity: .7;
+        }
+      }
+    }
+  }
+}
+
 .components-outboard-head-render {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 5px 15px 8px 15px;
+  padding: 5px 15px;
   background: style.$black4;
-  border-bottom: 1px solid rgba(white, .05);
 
   @include headOperations;
   @include headSearch;
+  @include headBookmark;
 }

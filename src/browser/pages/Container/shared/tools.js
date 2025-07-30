@@ -1,4 +1,8 @@
+import { useState, useEffect } from 'react';
+
 import debounce from 'lodash/debounce';
+
+import { useEventCallback } from '@/shared/hooks';
 
 const storage = {
   get: (...args) => {
@@ -21,62 +25,56 @@ const storage = {
   }, 300),
 };
 
-export const createHandler = (key, defaulted) => ({
-  get: (...args) => storage.get(key, ...args) || defaulted,
-  set: (...args) => storage.set(key, ...args),
-  remove: (...args) => storage.remove(key, ...args),
-});
+export const createHandler = (key, defaulted) => {
+  let callbacks = [];
 
-export const websiteConfigs = (() => {
-  let value;
-
-  const key = 'website_configs';
-  const handler = createHandler(key, {});
-
-  const getter = () => {
-    return value || handler.get();
+  const off = (callback) => {
+    callbacks = callbacks.filter(
+      (item) => item !== callback,
+    );
   };
 
-  const setter = (current) => {
-    value = setter;
+  const on = (callback) => {
+    callbacks = callbacks
+      .concat(callback)
+      .filter(Boolean);
 
-    return handler.set(current);
+    return () => off(callback);
   };
 
-  const getHostFromSrc = (src = '') => {
-    const matched = src.match(/:\/\/[^\/]+(\/|$)/) || [];
-    const [source = ''] = matched;
+  const remove = (...args) => storage.remove(key, ...args);
 
-    return source?.replace?.(/(^:\/\/)|(\/$)/g, '');
+  const getter = (...args) => storage.get(key, ...args) || defaulted;
+
+  const setter = (...args) => {
+    const forEach = (c) => c?.(...args);
+
+    callbacks.forEach(forEach);
+    return storage.set(key, ...args);
   };
 
-  const getBySrc = (src = '') => {
-    const source = getter() || {};
-    const host = getHostFromSrc(src);
+  const use = (getState = getter, setState = setter) => {
+    const [current, setCurrent] = useState(getState);
 
-    return source[host];
+    const refresh = useEventCallback(
+      () => setCurrent(getState()),
+    );
+
+    useEffect(refresh, [getState]);
+    useEffect(() => on(refresh), [refresh]);
+
+    return [current, setState];
   };
 
-  const setBySrc = (src = '', value = {}) => {
-    const source = getter() || {};
-    const host = getHostFromSrc(src);
-    const merged = { ...source, [host]: value };
-
-    return setter(merged);
+  return {
+    on,
+    off,
+    use,
+    remove,
+    get: getter,
+    set: setter,
   };
-
-  const mergeBySrc = (src = '', more = {}) => {
-    const source = getter() || {};
-    const host = getHostFromSrc(src);
-
-    const { [host]: got = {} } = source;
-    const current = { ...got, ...more }
-
-    return setBySrc(src, current);
-  };
-
-  return { getBySrc, setBySrc, mergeBySrc };
-})();
+};
 
 export const isSecureSrc = async (src = '') => {
   const options = { method: 'HEAD' };

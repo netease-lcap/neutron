@@ -1,0 +1,29 @@
+@mixin popupPopped{
+  .popup-popped {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 10;
+
+    .popped-content {
+
+    }
+
+    .popped-closable {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      transition: .2s;
+
+      &:hover {
+        opacity: .7;
+      }
+    }
+  }
+}
+
+.components-popup-render {
+  position: relative;
+
+  @include popupPopped;
+}

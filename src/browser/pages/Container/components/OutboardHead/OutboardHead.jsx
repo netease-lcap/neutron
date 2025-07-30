@@ -11,18 +11,108 @@ import {
   useDebounceCallback,
 } from '@/shared/hooks';
 
+import Popup from '@/components/Popup';
 import Iconfont from '@/components/Iconfont';
+
 import {
   isUsefulSrc,
   isSecureSrc,
   isAvailableSrc,
+  isUsefulCurrent,
 } from '../../shared/tools';
+import { bookmarks } from '../../shared/local';
 
 import { useDangerSharedContext } from '../../shared/hooks';
 
 import Favicon from '../Favicon';
+import Operation from '../Operation';
 
 import OutboardFind from '../OutboardFind';
+
+const useBookmark = () => {
+  const [current] = useDangerSharedContext('current');
+
+  const getter = useEventCallback(() => {
+    return bookmarks.getBySrc(current?.src);
+  }, [current]);
+
+  const setter = useEventCallback((...args) => {
+    return bookmarks.setBySrc(current?.src, ...args);
+  });
+
+  return bookmarks.use(getter, setter);
+};
+
+const Bookmark = (props = {}) => {
+  const {
+    className,
+    current,
+    close,
+    ...others
+  } = props;
+
+  const inputRef = useRef(null);
+
+  const [object = {}, setObject] = useState(current);
+  const { src, title } = object;
+
+  const cls = classnames({
+    'head-bookmark': true,
+    [className]: !!className,
+  });
+
+  const onKeyUp = useEventCallback((event = {}) => {
+    const { which } = event;
+
+    if (which !== 13) {
+      return;
+    }
+
+    close?.();
+    bookmarks.setBySrc(src, object);
+  });
+
+  const onChange = useEventCallback((event = {}) => {
+    const { target: { value = '' } = {} } = event;
+
+    setObject({ ...object, title: value });
+  });
+
+  const onClickRemove = useEventCallback(() => {
+    close?.();
+    bookmarks.delBySrc(src);
+  });
+
+  const onClickSubmit = useEventCallback(() => {
+    close?.();
+    bookmarks.setBySrc(src, object);
+  });
+
+  useEffect(() => {
+    const { current } = inputRef;
+
+    current?.select?.();
+  }, [inputRef]);
+
+  return (
+    <div className={cls}>
+      <div className="bookmark-info">
+        <input
+          type="text"
+          className="input"
+          ref={inputRef}
+          value={title}
+          onKeyUp={onKeyUp}
+          onChange={onChange}
+        />
+      </div>
+      <div className="bookmark-control">
+        <div className="button dark" onClick={onClickRemove}>移除</div>
+        <div className="button" onClick={onClickSubmit}>完成</div>
+      </div>
+    </div>
+  );
+};
 
 const OutboardHead = React.forwardRef((props = {}, ref) => {
   const { className, ...others } = props;
@@ -32,6 +122,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   const [selected, setSelected] = useState({});
   const [completing, setCompleting] = useState(false);
   const [completions, setCompletions] = useState([]);
+  const [bookmark, setBookmark] = useBookmark();
 
   const [memory = {}, setMemory] = useDangerSharedContext('memory');
   const [instance, setInstance] = useDangerSharedContext('instance');
@@ -76,6 +167,12 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     const merged = { ...context, settingsVisible: value };
 
     setContext(merged);
+  });
+
+  const onClickBookmark = useEventCallback(() => {
+    const { src, title, favicon } = current;
+
+    !bookmark?.src && setBookmark({ src, title, favicon });
   });
 
   const onBlurSrc = useEventCallback((event) => {
@@ -226,42 +323,41 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
   });
 
   const renderHeadPrefixOperations = () => {
-    const backCls = classnames({
-      'operations-item': true,
-      disabled: !canGoBack,
-    });
-
-    const forwardCls = classnames({
-      'operations-item': true,
-      disabled: !canGoForward,
-    });
+    const backDisabled = !canGoBack;
+    const forwardDisabled = !canGoForward;
 
     return (
       <div className="head-operations">
-        <div className={backCls} onClick={onClickBack}>
-          <Iconfont className="icon" name="arrow-back" />
-        </div>
-        <div className={forwardCls} onClick={onClickForward}>
-          <Iconfont className="icon" name="arrow-forward" />
-        </div>
-        <div className="operations-item" onClick={onClickRefresh}>
-          <Iconfont className="icon" name="refresh" />
-        </div>
+        <Operation
+          className="operations-item"
+          name="arrow-back"
+          disabled={backDisabled}
+          onClick={onClickBack}
+        />
+        <Operation
+          className="operations-item"
+          name="arrow-forward"
+          disabled={forwardDisabled}
+          onClick={onClickForward}
+        />
+        <Operation
+          className="operations-item"
+          name="refresh"
+          onClick={onClickRefresh}
+        />
       </div>
     );
   };
 
   const renderHeadSuffixOperations = () => {
-    const settingsCls = classnames({
-      'operations-item': true,
-      active: settingsVisible,
-    });
-
     return (
       <div className="head-operations">
-        <div className={settingsCls} onClick={onClickSettings}>
-          <Iconfont className="icon" name="settings" />
-        </div>
+        <Operation
+          className="operations-item"
+          name="settings"
+          active={settingsVisible}
+          onClick={onClickSettings}
+        />
       </div>
     );
   };
@@ -281,6 +377,32 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
         onKeyDown={onKeyDownSrc}
         onCompositionEnd={onCompositionEnd}
       />
+    );
+  };
+
+  const renderHeadSearchBookmark = () => {
+    const useful = isUsefulCurrent(current);
+
+    const active = !!bookmark?.src;
+    const name = active ? 'star' : 'star-border';
+    const render = (more = {}) => (<Bookmark current={bookmark} {...more} />);
+
+    if (!useful) {
+      return null;
+    }
+
+    return (
+      <Popup
+        poppedClassName="popped-bookmark"
+        render={render}
+      >
+        <Operation
+          className="search-bookmark"
+          name={name}
+          active={active}
+          onClick={onClickBookmark}
+        />
+      </Popup>
     );
   };
 
@@ -339,6 +461,7 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     return (
       <div className={searchCls}>
         { renderHeadSearchInput() }
+        { renderHeadSearchBookmark() }
         { renderHeadSearchCompletions() }
         { renderHeadSearchFind() }
       </div>

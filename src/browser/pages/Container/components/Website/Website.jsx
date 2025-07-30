@@ -21,10 +21,9 @@ import {
 
 import WebView from '@/components/WebView';
 
-import {
-  websiteConfigs,
-  isUsefulCurrent,
-} from '../../shared/tools';
+import { isUsefulCurrent } from '../../shared/tools';
+
+import { websiteConfigs } from '../../shared/local';
 
 const getFavicon = () => {
   const selector = 'link[rel*="icon"]';

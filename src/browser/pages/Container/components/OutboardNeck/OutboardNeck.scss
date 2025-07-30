@@ -1,0 +1,102 @@
+@use '../../shared/style';
+
+@mixin neckBookmark {
+  .neck-bookmark {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 7px;
+    color: style.$black7;
+    user-select: none;
+    cursor: initial;
+    transition: .2s;
+
+    &:hover {
+      background: rgba(white, .1);
+    }
+
+    &:active {
+      opacity: .7;
+    }
+
+    .title {
+      font-size: 12px;
+
+      @extend %ellipsis;
+    }
+
+    .favicon {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+    }
+  }
+}
+
+@mixin neckContent {
+  .neck-content {
+    --height: 27px;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .content-bookmarks {
+      flex: 1;
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      height: var(--height);
+      overflow: hidden;
+
+      &::-webkit-scrollbar {
+        opacity: 0;
+        display: none;
+        background: transparent;
+      }
+
+      .bookmarks-item {
+        height: var(--height);
+        max-width: 150px;
+        border-radius: 50px;
+      }
+    }
+
+    .content-operations {
+      .operations-item {
+        width: var(--height);
+        height: var(--height);
+      }
+
+      .popped-bookmarks {
+        padding: 10px 0;
+        width: 400px;
+        max-height: 600px;
+        background: style.$black;
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(black, .2);
+        overflow: auto;
+
+        &::-webkit-scrollbar {
+          opacity: 0;
+          display: none;
+          background: transparent;
+        }
+
+        .bookmarks-item {
+          padding: 0 20px;
+          gap: 10px;
+          height: 29px;
+        }
+      }
+    }
+  }
+}
+
+.components-outboard-neck-render {
+  padding: 0 20px;
+  background: style.$black4;
+
+  @include neckBookmark;
+  @include neckContent;
+}

@@ -29,17 +29,6 @@
 
       &[src] {
         background: style.$black8;
-
-        &:before {
-          content: '加载中...';
-          color: style.$black2;
-          font-size: 12px;
-          font-style: italic;
-          opacity: .5;
-          z-index: -1;
-
-          @extend %percenter;
-        }
       }
     }
   }

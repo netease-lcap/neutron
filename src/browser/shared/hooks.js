@@ -18,7 +18,7 @@ export const useEventCallback = (callback, dependencies = []) => {
 
   return useCallback((...args) => {
     return ref?.current?.(...args);
-  }, [ref]);
+  }, [ref, ...dependencies]);
 };
 
 const useEventArgument = (arg) => {
