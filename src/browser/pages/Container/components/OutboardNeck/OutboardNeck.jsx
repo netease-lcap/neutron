@@ -41,12 +41,15 @@ const Bookmark = (props = {}) => {
 
   const onClick = useEventCallback((event = {}) => {
     const { ctrlKey, metaKey } = event;
+
     const matched = ctrlKey || metaKey;
+    const more = { src, title, favicon };
 
     if (matched) {
-      setCurrent({ src, title, favicon }); 
+      setCurrent(more);
     } else {
       instance.src = src;
+      setCurrent((prev = {}) => ({ ...prev, ...more }));
     }
 
     propsOnClick && propsOnClick(event);
