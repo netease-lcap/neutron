@@ -95,7 +95,15 @@ export const isAvailableSrc = (src = '') => {
   return isSecureSrc(httpSrc, options);
 };
 
-export const isUsefulSrc = (src = '') => src?.startsWith?.('http');
+export const isUsefulSrc = (src = '') => {
+  try {
+    new URL(src);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
 
 export const isUsefulCurrent = (current = {}) => {
   const { src, title, favicon } = current;

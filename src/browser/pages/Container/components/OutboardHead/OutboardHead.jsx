@@ -246,15 +246,9 @@ const OutboardHead = React.forwardRef((props = {}, ref) => {
     !useful && setCurrent((prev) => ({ ...prev, src: href }));
 
     const secure = await isSecureSrc(href);
-    const avaliable = await isAvailableSrc(href);
-
     const uselessSrc = secure ? null : href;
 
     setUselessSrc(uselessSrc);
-
-    if (!avaliable) {
-      return;
-    }
 
     if (!instance?.src) {
       instance.src = href;
