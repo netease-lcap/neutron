@@ -250,6 +250,12 @@ const cacher = (() => {
   };
 
   const clear = () => {
+    const existed = fs.existsSync(directoryPath);
+
+    if (!existed) {
+      return;
+    }
+    
     const now = Date.now();
     const files = fs.readdirSync(directoryPath) || [];
 
