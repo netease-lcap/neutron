@@ -97,6 +97,7 @@ jobs:
         run: npm install && npm run publish
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.GB_PUBLISH_TOKEN }}
 
@@ -165,5 +166,6 @@ jobs:
         run: npm install && npm run publish-intel
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.GB_PUBLISH_TOKEN }}

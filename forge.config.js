@@ -28,7 +28,7 @@ const electronPath = (() => {
 const enabled = fs.existsSync(electronPath);
 
 const osxNotarize = {
-  teamId: 'CF44QJESLS',
+  teamId: process.env.APPLE_TEAM_ID,
   appleId: process.env.APPLE_ID,
   appleIdPassword: process.env.APPLE_ID_PASSWORD,
 };
