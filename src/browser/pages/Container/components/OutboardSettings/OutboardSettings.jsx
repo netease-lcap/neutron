@@ -27,6 +27,16 @@ const operations = [
       { label: '百度', value: 'https://www.baidu.com/s?wd=%s' },
     ],
   },
+  {
+    key: 'enableNodeWorker',
+    title: 'Node Worker',
+    descritpion: '启用 electron.createWorker 支持运行 Node Worker',
+    defaultValue: true,
+    tags: [
+      { label: '启用', value: true },
+      { label: '禁用', value: false },
+    ],
+  },
 ];
 
 const OutboardSettings = React.forwardRef((props = {}, ref) => {
@@ -46,9 +56,10 @@ const OutboardSettings = React.forwardRef((props = {}, ref) => {
   });
 
   const getValueFromSource = useEventCallback((operation = {}) => {
-    const { key } = operation;
+    const { key, defaultValue } = operation;
+    const { [key]: got = defaultValue } = settings;
 
-    return settings[key];
+    return got;
   });
 
   const setValueToSource = useEventCallback((operation = {}) => (value) => {
@@ -99,6 +110,24 @@ const OutboardSettings = React.forwardRef((props = {}, ref) => {
         setValueToSource(operation)(value);
       };
 
+      const renderInput = () => {
+        if (typeof value !== 'string') {
+          return null;
+        }
+
+        return (
+          <div className="rest-input">
+            <input
+              type="text"
+              className="input"
+              placeholder={placeholder}
+              value={value}
+              onChange={onChange}
+            />
+          </div>
+        );
+      };
+
       return (
         <div className="settings-item" key={index}>
           <div className="item-main">
@@ -110,15 +139,7 @@ const OutboardSettings = React.forwardRef((props = {}, ref) => {
             </div>
           </div>
           <div className="item-rest">
-            <div className="rest-input">
-              <input
-                type="text"
-                className="input"
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-              />
-            </div>
+            { renderInput() }
             <div className="rest-tags">
               { renderOperationTags(operation) }
             </div>

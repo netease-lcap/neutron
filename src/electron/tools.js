@@ -336,18 +336,34 @@ const storage = (() => {
 
 const settings = (() => {
   const key = 'neutron_settings.json';
-  const initial = { searchEngine: 'https://cn.bing.com/search?q=%s' };
+  const initial = {
+    enableNodeWorker: true,
+    searchEngine: 'https://cn.bing.com/search?q=%s',
+  };
+
+  const sync = (result) => {
+    if (!process?.env) {
+      return;
+    }
+
+    process.env.settings = JSON.stringify(result);
+  };
 
   const getter = async () => {
     const got = await storage.get(key);
+    const source = got || initial;
+    const result = { ...initial, ...source };
 
-    return got || initial;
+    sync(result);
+    return result;
   };
 
-  const setter = (...args) => {
-    return storage.set(key, ...args);
+  const setter = (result, ...rest) => {
+    sync(result);
+    return storage.set(key, result, ...rest);
   };
 
+  getter();
   return { get: getter, set: setter };
 })();
 

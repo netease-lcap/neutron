@@ -15,6 +15,16 @@ const createBeacon = (() => {
   return () => `${prefix}/${suffix++}`;
 })();
 
+const settings = (() => {
+  try {
+    const source = process.env?.settings;
+
+    return source && JSON.parse(source);
+  } catch (error) {
+    console.error(error);
+  }
+})();
+
 const fromFunction = (arg) => {
   if (recorder.has(arg)) {
     return recorder.get(arg);
@@ -51,20 +61,26 @@ const fetchBufferAndType = ipcInvokeWithChannel('fetchBufferAndType');
 const fetchAndCacheScript = ipcInvokeWithChannel('fetchAndCacheScript');
 const fetchPasswordFromSafe = ipcInvokeWithChannel('fetchPasswordFromSafe');
 
-const createWorker = (...args) => {
-  const beacon = createBeacon();
-  const invoke = ipvWorkerInvoke(beacon);
+const createWorker = (() => {
+  if (!settings.enableNodeWorker) {
+    return;
+  }
 
-  store.set(beacon, true);
-  invoke('create')(...args);
+  return (...args) => {
+    const beacon = createBeacon();
+    const invoke = ipvWorkerInvoke(beacon);
 
-  return {
-    terminate: invoke('terminate'),
-    postMessage: invoke('postMessage'),
-    addEventListener: invoke('addEventListener'),
-    removeEventListener: invoke('removeEventListener'),
+    store.set(beacon, true);
+    invoke('create')(...args);
+
+    return {
+      terminate: invoke('terminate'),
+      postMessage: invoke('postMessage'),
+      addEventListener: invoke('addEventListener'),
+      removeEventListener: invoke('removeEventListener'),
+    };
   };
-};
+})();
 
 const beforeunload = (() => {
   const { location: { host } = {} } = window;
