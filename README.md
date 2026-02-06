@@ -57,3 +57,17 @@ window?.electron?.fetch?.(url);
   await window?.electron?.execCommands?.(['npm install pnpm -g'], { encoding: 'utf8' });
 })();
 ```
+
+#### window.electron.print
+```javascript
+// url 是对应页面的完整路径
+// 接口文档 https://www.electronjs.org/docs/latest/api/web-contents
+window?.electron?.print?.(url, options, callback);
+```
+
+#### window.electron.printToPDF
+```javascript
+// url 是对应页面的完整路径
+// 接口文档 https://www.electronjs.org/docs/latest/api/web-contents
+window?.electron?.printToPDF?.(url, options);
+```

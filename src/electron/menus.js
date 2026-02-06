@@ -155,6 +155,10 @@ const createToolMenu = (webContents, params) => {
       label: '检查',
       click: () => webContents?.toggleDevTools?.(),
     },
+    {
+      label: '打印',
+      click: () => webContents?.print?.(),
+    },
   ];
 };
 

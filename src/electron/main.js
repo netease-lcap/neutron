@@ -8,6 +8,7 @@ const {
   ipcMain,
   session,
   protocol,
+  webContents,
   crashReporter,
   BrowserWindow,
   globalShortcut,
@@ -79,6 +80,10 @@ const windowShortcuts = [
   {
     accelerator: 'Control+Shift+T',
     callback: () => sendToAllWindows('HandleTab', { type: 'recover' }),
+  },
+  {
+    accelerator: 'CommandOrControl+P',
+    callback: (window) => window?.webContents?.print?.(),
   },
 ];
 
@@ -382,6 +387,22 @@ const forRegisterWhenReady = async () => {
       worker?.[action]?.(...args);
       removed && store.delete(beacon);
     }
+  });
+
+  ipcMain.handle('print', (event = {}, url, ...args) => {
+    const allWebContents = webContents.getAllWebContents();
+    const find = (item) => item?.mainFrame?.url === url;
+    const found = allWebContents.find(find);
+
+    return found?.print?.(...args);
+  });
+
+  ipcMain.handle('printToPDF', (event = {}, url, ...args) => {
+    const allWebContents = webContents.getAllWebContents();
+    const find = (item) => item?.mainFrame?.url === url;
+    const found = allWebContents.find(find);
+
+    return found?.printToPDF?.(...args);
   });
 
   await createWindow();

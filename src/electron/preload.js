@@ -303,4 +303,6 @@ contextBridge.exposeInMainWorld('electron', {
   totalmem: ipcInvokeWithChannel('totalmem'),
   settings: ipcInvokeWithChannel('settings'),
   execCommands: ipcInvokeWithChannel('execCommands'),
+  print: ipcInvokeWithChannel('print'),
+  printToPDF: ipcInvokeWithChannel('printToPDF'),
 });

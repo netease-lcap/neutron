@@ -1,6 +1,6 @@
 {
   "name": "neutron",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "authors": "NetEase (Hangzhou) Network Co",
   "description": "Electron for CodeWave",
   "main": "src/electron/main.js",
