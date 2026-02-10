@@ -1,7 +1,7 @@
 const source = {
-  EN_NAME: 'CodeWave',
-  CN_NAME: 'CodeWave 智能开发平台',
-  HOMEPAGE: 'https://codewave.163.com/',
+  EN_NAME: 'ZHY-ERP',
+  CN_NAME: '新化工运营管理系统',
+  HOMEPAGE: 'https://shgerp-chempt.zhechem.com/',
 };
 
 const defined = Object
