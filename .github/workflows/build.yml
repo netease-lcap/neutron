@@ -28,6 +28,12 @@ jobs:
         with:
           node-version: 20.10.0
 
+      - name: Make Neutron App
+        if: github.ref_name != 'master'
+        run: npm install && npm run make
+        env:
+          GITHUB_TOKEN: ${{ secrets.GB_PUBLISH_TOKEN }}
+
       - name: Publish Neutron App
         if: github.ref_name == 'master'
         run: npm install && npm run publish
@@ -94,6 +100,15 @@ jobs:
           cp $B_PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
           cp $C_PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
           security find-identity -p codesigning -v
+
+      - name: Make Neutron App
+        if: github.ref_name != 'master'
+        run: npm install && npm run make
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GB_PUBLISH_TOKEN }}
 
       - name: Publish Neutron App
         if: github.ref_name == 'master'
@@ -164,6 +179,15 @@ jobs:
           cp $B_PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
           cp $C_PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
           security find-identity -p codesigning -v
+
+      - name: Make Neutron App
+        if: github.ref_name != 'master'
+        run: npm install && npm run make-intel
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GB_PUBLISH_TOKEN }}
 
       - name: Publish Neutron App
         if: github.ref_name == 'master'
