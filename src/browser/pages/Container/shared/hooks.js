@@ -34,8 +34,8 @@ const DEFAULTED = [
     active: true,
     canGoBack: false,
     canGoForward: false,
-    title: 'CodeWave智能开发平台',
-    src: 'https://codewave.163.com/',
+    title: process.env.CN_NAME,
+    src: process.env.HOMEPAGE,
   },
 ];
 

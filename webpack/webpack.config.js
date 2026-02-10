@@ -1,8 +1,11 @@
 const path = require('path');
 const sass = require('sass');
+const webpack = require('webpack');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+const environment = require('../environment.js');
 
 const basePath = path.resolve(__dirname, '../');
 
@@ -60,9 +63,13 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
+    new webpack.DefinePlugin(
+      environment.defined,
+    ),
     new HtmlWebpackPlugin({
-      template: path.resolve(basePath, 'src/public/index.html'),
       filename: 'index.html',
+      title: environment.CN_NAME,
+      template: path.resolve(basePath, 'src/public/index.html'),
     }),
   ],
 };

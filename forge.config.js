@@ -4,6 +4,8 @@ const path = require('path');
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 
+const environment = require('./environment.js');
+
 const basePath = path.resolve(__dirname, './');
 
 const electronPlatformPath = (() => {
@@ -38,7 +40,7 @@ const forgeConfig = {
     asar: true,
     prune: true,
     icon: 'src/public/icon',
-    name: 'CodeWave 智能开发平台',
+    name: environment.CN_NAME,
   },
   rebuildConfig: {},
   makers: [
@@ -113,14 +115,14 @@ const forgeConfig = {
     return;
   }
 
-  forgeConfig.packagerConfig.name = 'CodeWave';
+  forgeConfig.packagerConfig.name = environment.EN_NAME;
 
   forgeConfig.makers.push(
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        name: 'CodeWave',
-        productName: 'CodeWave 智能开发平台',
+        name: environment.EN_NAME,
+        productName: environment.CN_NAME,
         noMsi: true,
         iconUrl: path.resolve(basePath, 'src/public/icon.ico'),
         // windows 存在 bug，开启 utf-8 beta 自定义图标
