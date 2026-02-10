@@ -1,6 +1,6 @@
 const source = {
-  CN_NAME: 'CodeWave',
-  EN_NAME: 'CodeWave 智能开发平台',
+  EN_NAME: 'CodeWave',
+  CN_NAME: 'CodeWave 智能开发平台',
   HOMEPAGE: 'https://codewave.163.com/',
 };
 
