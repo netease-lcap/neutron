@@ -29,6 +29,7 @@ jobs:
           node-version: 20.10.0
 
       - name: Publish Neutron App
+        if: github.ref_name == 'master'
         run: npm install && npm run publish
         env:
           GITHUB_TOKEN: ${{ secrets.GB_PUBLISH_TOKEN }}
@@ -95,6 +96,7 @@ jobs:
           security find-identity -p codesigning -v
 
       - name: Publish Neutron App
+        if: github.ref_name == 'master'
         run: npm install && npm run publish
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -164,6 +166,7 @@ jobs:
           security find-identity -p codesigning -v
 
       - name: Publish Neutron App
+        if: github.ref_name == 'master'
         run: npm install && npm run publish-intel
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
