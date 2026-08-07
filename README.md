@@ -69,5 +69,5 @@ window?.electron?.print?.(url, options, callback);
 ```javascript
 // url 是对应页面的完整路径
 // 接口文档 https://www.electronjs.org/docs/latest/api/web-contents
-window?.electron?.printToPDF?.(url, options);
+window?.electron?.printToPDF?.(url, options); 
 ```
